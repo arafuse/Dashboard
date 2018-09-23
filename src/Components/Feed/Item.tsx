@@ -1,17 +1,16 @@
-import './Element.css';
+import './Item.css';
 
 import * as React from 'react';
 
 import { FeedItem } from '../../Models';
 import { statelessComponent } from '../HOC/Stateless';
 
-
-export interface ElementProps {
+export interface ItemProps {
   id: number;
   item: FeedItem;
 }
 
-export const Element = statelessComponent<ElementProps>()
+export const Item = statelessComponent<ItemProps>()
   (({ id, item }) => {    
     return (
       <div key={id} className='feed-element' >

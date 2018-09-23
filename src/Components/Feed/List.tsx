@@ -6,7 +6,7 @@ import { Action, Dispatch } from 'redux';
 
 import { setFeed } from '../../Actions';
 import { Feed } from '../../Models';
-import { Element } from './Element';
+import { Item } from './Item';
 import { statelessComponent } from '../HOC/Stateless';
 import * as Utils from '../../Utils';
 
@@ -49,7 +49,7 @@ const ConnectedList = statelessComponent<ListProps>(
         );
       }
       return feed.items.map((item, id) => (        
-        <Element {...{id, item}}/>        
+        <Item {...{id, item}}/>        
       ));
     };
     return (
