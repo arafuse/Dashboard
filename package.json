@@ -34,6 +34,7 @@
     "@types/redux-immutable": "^3.0.38",
     "@types/sanitize-html": "^1.18.2",
     "@types/uuid": "^3.4.4",
+    "font-awesome": "^4.7.0",
     "immutable": "^3.8.2",
     "normalize.css": "^8.0.0",
     "react": "^16.5.1",

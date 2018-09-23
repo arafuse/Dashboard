@@ -21,7 +21,7 @@ module.exports = {
         use: ['style-loader', 'css-loader']
       },
       {
-        test: /\.(png|jpg|jpeg|gif|svg|pdf)$/,
+        test: /\.(png|jpg|jpeg|gif|svg|pdf|woff|woff2|eot|ttf|otf)$/,
         loader: "url-loader",
         options: {
           limit: 10000
@@ -29,7 +29,7 @@ module.exports = {
       }
     ]
   },
-  resolve: { extensions: ['*', '.js', '.jsx', '.ts', '.tsx'] },
+  resolve: { extensions: ['*', '.js', '.jsx', '.ts', '.tsx', '.woff', '.woff2', '.eot', '.ttf', '.otf'] },
   output: {
     path: path.resolve(__dirname, "build/dist/"),
     publicPath: "dist/",
