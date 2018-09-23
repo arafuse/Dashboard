@@ -1,0 +1,10 @@
+.feed-element {
+  border: 1px solid #3f3f3f;
+  padding: 5px;  
+}
+
+.feed-element__badge {  
+  height: 100px;
+  object-fit: cover;
+  padding-right: 15px;  
+}

@@ -1,5 +1,4 @@
-.streams-container {
-  border: 1px solid green;
+.streams-container {  
   display: flex;
-  flex-direction: row;
+  flex-direction: row;  
 }

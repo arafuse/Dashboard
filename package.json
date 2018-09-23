@@ -32,12 +32,14 @@
     "@types/react-dom": "^16.0.7",
     "@types/react-redux": "^6.0.9",
     "@types/redux-immutable": "^3.0.38",
+    "@types/sanitize-html": "^1.18.2",
     "@types/uuid": "^3.4.4",
     "immutable": "^3.8.2",
     "normalize.css": "^8.0.0",
     "react": "^16.5.1",
     "react-dom": "^16.5.1",
     "react-hot-loader": "^4.3.8",
-    "redux-immutable": "^4.0.0"
+    "redux-immutable": "^4.0.0",
+    "sanitize-html": "^1.18.2"
   }
 }

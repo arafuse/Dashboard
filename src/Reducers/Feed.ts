@@ -15,7 +15,7 @@ export const feed = (state = initialState, action: StatefulAction) => {
       return state.delete(action.id);
     case SET_FEED:
       if (action.id === undefined) throw ('Got \'undefined\' action id');
-      return state.set(action.id, action.payload);          
+      return state.set(action.id, action.payload);
     default:
       return state;
   }

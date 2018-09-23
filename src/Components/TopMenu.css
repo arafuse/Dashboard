@@ -1,5 +1,5 @@
-.top-menu {
-  border: 1px solid red;
+.top-menu {  
   position: relative;
   margin: 1px;
+  height: 2vh;
 }

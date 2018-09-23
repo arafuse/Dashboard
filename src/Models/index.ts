@@ -7,7 +7,7 @@ export interface FeedItem {
 export interface Feed {
   status: string;
   error?: string;
-  items?: Array<FeedItem>;
+  items: Array<FeedItem>;
 }
 
 export type ElementEvent<T> = React.FormEvent<T> & React.ChangeEvent<T> & {
