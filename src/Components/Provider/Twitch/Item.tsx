@@ -2,12 +2,12 @@ import './Item.css';
 
 import * as React from 'react';
 
-import { FeedItem } from '../../Models';
-import { statelessComponent } from '../HOC/Stateless';
+import * as Twitch from '../../../Providers/Twitch';
+import { statelessComponent } from '../../HOC/Stateless';
 
 export interface ItemProps {
   id: number;
-  item: FeedItem;
+  item: Twitch.Item;
 }
 
 export const Item = statelessComponent<ItemProps>()

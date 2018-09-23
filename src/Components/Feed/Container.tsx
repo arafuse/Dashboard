@@ -4,13 +4,13 @@ import * as Immutable from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { Feed } from '../../Models';
+import * as Twitch from '../../Providers/Twitch';
 import { State } from '../../Store';
 import { statelessComponent } from '../HOC/Stateless';
-import { List, ListProps } from './List';
+import { Feed, FeedProps } from '../Provider/Twitch/Feed';
 
 export interface ContainerProps {
-  feeds: Immutable.Map<string, Feed>;
+  feeds: Immutable.Map<string, Twitch.Feed>;
 }
 
 const ConnectedContainer = statelessComponent<ContainerProps>(
@@ -20,7 +20,7 @@ const ConnectedContainer = statelessComponent<ContainerProps>(
     <div className='streams-container'>
       {Object.entries(feeds.toJS()).map(([id, feed]) => (
         <div key={id}>
-          <List {...{ id, feed } as ListProps} />
+          <Feed {...{ id, feed } as FeedProps} />
         </div>
       ))}
     </div>
@@ -28,7 +28,7 @@ const ConnectedContainer = statelessComponent<ContainerProps>(
 });
 
 const mapStateToProps = (state: State) => {
-  return { feeds: state.get('feed') };
+  return { feeds: state.get('twitch') };
 };
 
 export const Container = connect(mapStateToProps)(ConnectedContainer);

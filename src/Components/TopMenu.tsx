@@ -4,7 +4,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
 
-import { addFeed } from '../Actions';
+import * as Twitch from '../Providers/Twitch';
 import { statelessComponent } from './HOC/Stateless';
 
 export interface TopMenuProps {
@@ -23,7 +23,7 @@ const ConnectedTopMenu = statelessComponent<TopMenuProps>({
 ));
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
-  addFeed: () => dispatch(addFeed())  
+  addFeed: () => dispatch(Twitch.addFeed())  
 });
 
 export const TopMenu = connect(undefined, mapDispatchToProps)(ConnectedTopMenu);

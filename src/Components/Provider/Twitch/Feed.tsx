@@ -1,34 +1,33 @@
-import './List.css';
+import './Feed.css';
 
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
 
-import { setFeed } from '../../Actions';
-import { Feed } from '../../Models';
+import * as Twitch from '../../../Providers/Twitch';
+import * as Utils from '../../../Utils';
+import { statelessComponent } from '../../HOC/Stateless';
 import { Item } from './Item';
-import { statelessComponent } from '../HOC/Stateless';
-import * as Utils from '../../Utils';
-
-export interface ListProps {
-  id: string;
-  feed: Feed;
-  setFeed(id: string, feed: Feed): void;
-}
 
 const CLIENT_ID = '82aaq2cdcyd7e4bj7lyba7ecly34we';
 
-const ConnectedList = statelessComponent<ListProps>(
+export interface FeedProps {
+  id: string;
+  feed: Twitch.Feed;
+  setFeed(id: string, feed: Twitch.Feed): void;
+}
+
+const ConnectedList = statelessComponent<FeedProps>(
   {},
   {
-    componentWillMount({ id, setFeed }: ListProps) {
+    componentWillMount({ id, setFeed }: FeedProps) {
       setFeed(id, { status: 'loading', items: [] });
       fetch('https://api.twitch.tv/kraken/streams/featured?client_id=' + CLIENT_ID)
         .then(response => {
           return response.json();
         })
         .then(data => {
-          const items = data.featured.map((featured: any) => {            
+          const items = data.featured.map((featured: any) => {
             return {
               title: featured.title,
               badge: featured.stream.channel.logo,
@@ -51,19 +50,19 @@ const ConnectedList = statelessComponent<ListProps>(
           <div>Loading...</div>
         );
       }
-      return feed.items.map((item, id) => (        
-        <Item {...{id, item}}/>        
+      return feed.items.map((item, id) => (
+        <Item {...{ id, item }} />
       ));
     };
     return (
-      <div className='feed-list' >
+      <div className='twitch-feed' >
         {items()}
       </div>
-    );    
+    );
   });
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
-  setFeed: (id: string, feed: Feed) => dispatch(setFeed(id, feed)),
+  setFeed: (id: string, feed: Twitch.Feed) => dispatch(Twitch.setFeed(id, feed)),
 });
 
-export const List = connect(undefined, mapDispatchToProps)(ConnectedList);
+export const Feed = connect(undefined, mapDispatchToProps)(ConnectedList);
