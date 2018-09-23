@@ -13,18 +13,22 @@ export interface ItemProps {
 export const Item = statelessComponent<ItemProps>()
   (({ id, item }) => {
     return (
-      <div key={id} className='feed-element' >
-        <div className='feed-element__header'>
-          <div className='feed-element__badge'>
+      <div key={id} className='twitch-item' >
+        <div className='twitch-item__header'>
+          <div className='twitch-item__badge'>
             <img src={item.badge} />
           </div>
-          <div className='feed-element__info'>
-            <div className='feed-element__title'>{item.title}</div>
-            <div className='feed-element__channel'>{item.channel}</div>
+          <div className='twitch-item__info'>
+            <div className='twitch-item__title'>{item.title}</div>
+            <div className='twitch-item__channel'>
+              <a href={item.link} target='_blank'>{item.channel}</a>
+            </div>
           </div>
         </div>
-        <div className='feed-element__copy-text'>{item.content}</div>
-        <img src={item.image} />
+        <div className='twitch-item__copy-text'>{item.content}</div>
+        <div className='twitch-item__image'>
+          <a href={item.link} target='_blank'><img src={item.image} /></a>
+        </div>
       </div >
     );
   });

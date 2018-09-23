@@ -1,43 +1,43 @@
-.feed-element {
+.twitch-item {
   margin-bottom: 10px;
   border: 1px solid #3f3f3f;
   padding: 10px;
 }
 
-.feed-element__header {
+.twitch-item__header {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
 
-.feed-element__badge {
-  max-width: 100px;
-  max-height: 100px;
-  height: auto;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
+.twitch-item__badge {       
+  height: 100px;    
+  padding-right: 10px;  
 }
 
-.feed-element__badge img {
-  height: 100px;
-  padding-right: 10px;
+.twitch-item__badge img { 
+  height: 100%;
+  border-radius: 5%; 
 }
 
-.feed-element__info {
+.twitch-item__image img {
+  border-radius: 5%;  
+}
+
+.twitch-item__info {
   display: block;
   text-align: right;
 }
 
-.feed-element__title {
+.twitch-item__title {
   font-size: 1.2em;
 }
 
-.feed-element__title {
+.twitch-item__title {
   font-size: 1.2em;
 }
 
-.feed-element__copy-text {
+.twitch-item__copy-text {
   margin-top: 10px;
   margin-bottom: 10px;
 }

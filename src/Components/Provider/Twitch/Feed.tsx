@@ -34,7 +34,7 @@ const ConnectedList = statelessComponent<FeedProps>(
               channel: featured.stream.channel.display_name,
               content: Utils.textFromHTML(featured.text),
               image: featured.stream.preview.medium,
-              link: featured.stream._links.self
+              link: featured.stream.channel.url
             };
           });
           setFeed(id, { status: 'loaded', items: items });

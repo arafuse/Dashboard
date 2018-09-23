@@ -6,6 +6,24 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
+a:link {  
+  color: #5f9fff;
+  text-decoration: none;
+}
+
+a:visited {
+  color: #5f9fff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:active {
+  text-decoration: underline;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
 }
