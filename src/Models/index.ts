@@ -1,7 +1,10 @@
 export interface FeedItem {
+  title: string;
   badge: string;
-  text: string;
+  channel: string;
+  content: string;
   image: string;
+  link: string;
 }
 
 export interface Feed {

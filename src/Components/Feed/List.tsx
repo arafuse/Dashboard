@@ -30,9 +30,12 @@ const ConnectedList = statelessComponent<ListProps>(
         .then(data => {
           const items = data.featured.map((featured: any) => {            
             return {
-              badge: featured.image,
-              text: Utils.textFromHTML(featured.text),
-              image: featured.stream.preview.medium
+              title: featured.title,
+              badge: featured.stream.channel.logo,
+              channel: featured.stream.channel.display_name,
+              content: Utils.textFromHTML(featured.text),
+              image: featured.stream.preview.medium,
+              link: featured.stream._links.self
             };
           });
           setFeed(id, { status: 'loaded', items: items });

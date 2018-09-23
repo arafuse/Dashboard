@@ -11,11 +11,19 @@ export interface ItemProps {
 }
 
 export const Item = statelessComponent<ItemProps>()
-  (({ id, item }) => {    
+  (({ id, item }) => {
     return (
       <div key={id} className='feed-element' >
-        <img className='feed-element__badge' src={item.badge} />
-        <div className='feed-element__copy-text'>{item.text}</div>    
+        <div className='feed-element__header'>
+          <div className='feed-element__badge'>
+            <img src={item.badge} />
+          </div>
+          <div className='feed-element__info'>
+            <div className='feed-element__title'>{item.title}</div>
+            <div className='feed-element__channel'>{item.channel}</div>
+          </div>
+        </div>
+        <div className='feed-element__copy-text'>{item.content}</div>
         <img src={item.image} />
       </div >
     );

@@ -3,17 +3,13 @@ body {
   color: white;
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
-/* width */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
-
-
-/* Handle */
 ::-webkit-scrollbar-thumb {
   background: gray; 
   border-radius: 8px;
