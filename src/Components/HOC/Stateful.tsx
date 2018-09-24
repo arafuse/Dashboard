@@ -16,7 +16,7 @@ export class StatefulComponent<P, S> extends React.Component<P, S> {
 
 export const statefulComponent = <P, S>(
   initialState: S,
-  propHandlers?: { [index: string]: Function },
+  propHandlers?: { [index: string]: any },
   lifeCycleHooks?: { [index: string]: Function }
 ) =>
   (Component: React.StatelessComponent<P>) => class extends StatefulComponent<P, S> {
@@ -25,15 +25,15 @@ export const statefulComponent = <P, S>(
       this.displayName = Component.name;
       this.state = initialState || {} as S;
       this.componentMethods = {
-        setState: this.setState.bind(this),   
-        forceUpdate: this.forceUpdate.bind(this)     
+        setState: this.setState.bind(this),
+        forceUpdate: this.forceUpdate.bind(this)
       };
       this.propHandlers = this.getPropHandlers(propHandlers || {});
       this.setLifeCycleHooks(lifeCycleHooks || {});
     }
 
-    getPropHandlers(propHandlers: { [index: string]: Function }) {
-      const preparedHandlers: { [index: string]: Function } = {};
+    getPropHandlers(propHandlers: { [index: string]: any }) {
+      const preparedHandlers: { [index: string]: any } = {};
       Object.keys(propHandlers).forEach(key => {
         const handler = propHandlers[key];
         preparedHandlers[key] = typeof handler !== 'function' ? handler : (...args: Array<any>) => {
@@ -52,20 +52,22 @@ export const statefulComponent = <P, S>(
     setLifeCycleHooks(lifeCycleHooks: { [index: string]: Function }) {
       Object.keys(lifeCycleHooks).forEach(
         (functionName) => {
-          if (functionName !== 'constructor') {
+          if (['componentDidMount', 'componentWillUnmount'].includes(functionName)) {
             this[functionName] = () => {
-              lifeCycleHooks[functionName](this.props);
+              lifeCycleHooks[functionName](Object.assign({}, this.props, this.propHandlers));
             };
+          }          
+          else if (functionName !== 'constructor') {
+            this[functionName] = lifeCycleHooks[functionName];
           }
         },
       );
       if (lifeCycleHooks.constructor) {
-        lifeCycleHooks.constructor(this.props);
+        lifeCycleHooks.constructor(Object.assign({}, this.props, this.propHandlers));
       }
     }
 
     render() {
-      // Can't use spread operator here, https://github.com/Microsoft/TypeScript/issues/10727.
       const props = this.propHandlers ? Object.assign({}, this.props, this.propHandlers) : this.props;
       return <Component {...Object.assign({}, props, this.componentMethods, { state: this.state })} />;
     }

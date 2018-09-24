@@ -5,15 +5,14 @@ import * as React from 'react';
 import * as Twitch from '../../../Providers/Twitch';
 import { statelessComponent } from '../../HOC/Stateless';
 
-export interface ItemProps {
-  id: number;
+export interface ItemProps {  
   item: Twitch.Item;
 }
 
 export const Item = statelessComponent<ItemProps>()
-  (({ id, item }) => {
+  (({ item }) => {
     return (
-      <div key={id} className='twitch-item' >
+      <div className='twitch-item' >
         <div className='twitch-item__header'>
           <div className='twitch-item__badge'>
             <img src={item.badge} />
