@@ -11,15 +11,15 @@ import { Item } from './Item';
 
 const CLIENT_ID = '82aaq2cdcyd7e4bj7lyba7ecly34we';
 
-export interface FeedProps {
-  self: React.Component<FeedProps>;
+export interface FeedProps {  
   id: string;
   feed: Twitch.Feed;
+  self: React.Component<FeedProps>;
   setFeed(id: string, feed: Twitch.Feed): void;
   deleteFeed(id: string): void;
   concatFeed(id: string, feed: Twitch.Feed): void;
   setScrollHandler(): (node: HTMLDivElement) => void;
-  handleFeedDelete(): void;
+  handleFeedDelete(): (props: FeedProps) => void;
 }
 
 const refreshFeed = (props: FeedProps) => {

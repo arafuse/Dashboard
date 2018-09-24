@@ -48,11 +48,13 @@ export const reducer = (state = initialState, action: StatefulAction) => {
       return state.delete(action.id);
     case SET_FEED:
       if (action.id === undefined) throw ('Got \'undefined\' action id');
+      action.payload.error && console.error(action.payload.error);
       return state.set(action.id, action.payload);
     case CONCAT_FEED:
       if (action.id === undefined) throw ('Got \'undefined\' action id');
       const feed = state.get(action.id);
-      return state.set(action.id, { ...feed, next: action.payload.next, items: feed.items.concat(action.payload.items) });
+      return state.set(action.id,
+        { ...feed, next: action.payload.next, items: feed.items.concat(action.payload.items) });
     default:
       return state;
   }
