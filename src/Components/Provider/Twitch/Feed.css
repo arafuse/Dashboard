@@ -5,3 +5,8 @@
   overflow: auto;
   height: 97vh;
 }
+
+.twitch-feed__menu i {    
+    float: right;
+    margin: 5px;
+}

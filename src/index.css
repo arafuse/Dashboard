@@ -6,6 +6,10 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
+.icon {
+  position: relative;    
+}
+
 a:link {  
   color: #5f9fff;
   text-decoration: none;

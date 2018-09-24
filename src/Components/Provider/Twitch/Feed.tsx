@@ -16,8 +16,10 @@ export interface FeedProps {
   id: string;
   feed: Twitch.Feed;
   setFeed(id: string, feed: Twitch.Feed): void;
+  deleteFeed(id: string): void;  
   concatFeed(id: string, items: Array<Twitch.Item>): void;
   setScrollHandler(): (node: HTMLDivElement) => void;
+  handleFeedDelete(): void;
 }
 
 const refreshFeed = (props: FeedProps) => {
@@ -73,22 +75,20 @@ const appendFeed = ({ self, id, concatFeed, setFeed }: FeedProps) => {
 const ConnectedList = statelessComponent<FeedProps>(
   {
     setScrollHandler: (node: HTMLElement) => (props: FeedProps) => {
-      node && node.addEventListener('scroll', () => {
-        const scrollTop = node.scrollTop;
-        const scrollHeight = node.scrollHeight;
-        const offsetHeight = node.offsetHeight;
-        const contentHeight = scrollHeight - offsetHeight;
-        if (contentHeight <= scrollTop) {
-          appendFeed(props);
-        }
+      node && node.addEventListener('scroll', () => {                  
+        const contentHeight = node.scrollHeight - node.offsetHeight;
+        if (contentHeight <= node.scrollTop) appendFeed(props);        
       });
+    },
+    handleFeedDelete: () => ({id, deleteFeed}: FeedProps) => {
+      deleteFeed(id);
     }
   },
   {
     componentDidMount: (props: FeedProps) => {
       refreshFeed(props);
     }
-  })(({ feed, setScrollHandler }) => {
+  })(({ feed, handleFeedDelete, setScrollHandler }) => {
     const items = () => {
       if (feed.status === 'loading') {
         return (
@@ -103,6 +103,9 @@ const ConnectedList = statelessComponent<FeedProps>(
     };
     return (
       <div ref={setScrollHandler} className='twitch-feed' >
+        <div className='twitch-feed__menu'>
+          <i className='icon fa fa-trash fa-lg' onClick={handleFeedDelete}></i>
+        </div>
         {items()}
       </div>
     );
@@ -110,6 +113,7 @@ const ConnectedList = statelessComponent<FeedProps>(
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
   setFeed: (id: string, feed: Twitch.Feed) => dispatch(Twitch.setFeed(id, feed)),
+  deleteFeed: (id: string) =>  dispatch(Twitch.deleteFeed(id)),
   concatFeed: (id: string, items: Array<Twitch.Item>) => dispatch(Twitch.concatFeed(id, items)),
 });
 

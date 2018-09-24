@@ -18,7 +18,7 @@ const ConnectedTopMenu = statelessComponent<TopMenuProps>({
   },
 })(({ plus }) => (
   <div className='top-menu' >
-    <i className='icon fa fa-plus-square' aria-hidden='true' onClick={plus}></i>
+    <i className='icon fa fa-plus-square fa-lg' aria-hidden='true' onClick={plus}></i>
   </div >
 ));
 
