@@ -11,13 +11,13 @@ import { Item } from './Item';
 
 const CLIENT_ID = '82aaq2cdcyd7e4bj7lyba7ecly34we';
 
-export interface FeedProps {  
-  id: string;  
-  feed: Twitch.Feed;  
-  feedRef: React.RefObject<HTMLDivElement>;  
-  setFeed(id: string, feed: Twitch.Feed): void;  
-  concatFeed(id: string, items: Array<Twitch.Item>): void;  
-  setScrollHandler() : (node: HTMLDivElement) => void;
+export interface FeedProps {
+  id: string;
+  feed: Twitch.Feed;
+  feedRef: React.RefObject<HTMLDivElement>;
+  setFeed(id: string, feed: Twitch.Feed): void;
+  concatFeed(id: string, items: Array<Twitch.Item>): void;
+  setScrollHandler(): (node: HTMLDivElement) => void;
 }
 
 const refreshFeed = (props: FeedProps) => {
@@ -37,33 +37,16 @@ const refreshFeed = (props: FeedProps) => {
           image: featured.stream.preview.medium,
           link: featured.stream.channel.url,
         };
-      });      
+      });
       const feed = { status: 'loaded', next: data._links.next, items: items };
-      setFeed(id, feed);      
+      setFeed(id, feed);
     })
     .catch(error => {
       setFeed(id, { status: 'error', error: error, items: [] });
     });
 };
 
-/*
-const setScrollHandler = (props: FeedProps) => {  
-  const node = props.feedRef.current;
-  console.log(node);
-  node && node.addEventListener('scroll', () => {        
-    const scrollTop = node.scrollTop;
-    const scrollHeight = node.scrollHeight;
-    const offsetHeight = node.offsetHeight;
-    const contentHeight = scrollHeight - offsetHeight;        
-    if (contentHeight <= scrollTop) {          
-      appendFeed(props);      
-    }
-  });
-};
-
-/*
-const appendFeed = (props: FeedProps) => {
-  const { id, feed, setFeed } = props;  
+const appendFeed = ({ id, feed, concatFeed, setFeed }: FeedProps) => {
   fetch(feed.next + '&client_id=' + CLIENT_ID)
     .then(response => {
       return response.json();
@@ -78,30 +61,34 @@ const appendFeed = (props: FeedProps) => {
           image: featured.stream.preview.medium,
           link: featured.stream.channel.url,
         };
-      });      
-      const newFeed = { status: 'loaded', next: data._links.next, items: feed.items.concat(items) };
-      setFeed(id, newFeed);
-      setScrollHandler({...props, feed: newFeed});
+      });
+      concatFeed(id, items);
     })
     .catch(error => {
       setFeed(id, { status: 'error', error: error, items: [] });
     });
 };
-*/
 
 const ConnectedList = statelessComponent<FeedProps>(
   {
     setScrollHandler: (node: HTMLElement) => (props: FeedProps) => {
-      console.log(node);
-      console.log(props);
+      node && node.addEventListener('scroll', () => {
+        const scrollTop = node.scrollTop;
+        const scrollHeight = node.scrollHeight;
+        const offsetHeight = node.offsetHeight;
+        const contentHeight = scrollHeight - offsetHeight;
+        if (contentHeight <= scrollTop) {
+          appendFeed(props);
+        }
+      });
     }
   },
   {
     componentDidMount: (props: FeedProps) => {
       refreshFeed(props);
     }
-  })(({feed, setScrollHandler} ) => {        
-    const items = () => {      
+  })(({ feed, setScrollHandler }) => {
+    const items = () => {
       if (feed.status === 'loading') {
         return (
           <div>Loading...</div>
