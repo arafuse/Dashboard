@@ -34,7 +34,7 @@ export interface Feed {
 export const addFeed = () => ({ type: ADD_FEED, id: uuidv4() });
 export const deleteFeed = (id: string) => ({ type: DELETE_FEED, id: id });
 export const setFeed = (id: string, feed: Feed) => ({ type: SET_FEED, id: id, payload: feed });
-export const concatFeed = (id: string, items: Array<Item>) => ({ type: CONCAT_FEED, id: id, payload: items });
+export const concatFeed = (id: string, feed: Feed) => ({ type: CONCAT_FEED, id: id, payload: feed });
 
 const initialState = Immutable.Map<string, any>();
 
@@ -52,7 +52,7 @@ export const reducer = (state = initialState, action: StatefulAction) => {
     case CONCAT_FEED:
       if (action.id === undefined) throw ('Got \'undefined\' action id');
       const feed = state.get(action.id);
-      return state.set(action.id, { ...feed, items: feed.items.concat(action.payload) });
+      return state.set(action.id, { ...feed, next: action.payload.next, items: feed.items.concat(action.payload.items) });
     default:
       return state;
   }

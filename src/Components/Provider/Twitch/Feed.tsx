@@ -16,8 +16,8 @@ export interface FeedProps {
   id: string;
   feed: Twitch.Feed;
   setFeed(id: string, feed: Twitch.Feed): void;
-  deleteFeed(id: string): void;  
-  concatFeed(id: string, items: Array<Twitch.Item>): void;
+  deleteFeed(id: string): void;
+  concatFeed(id: string, feed: Twitch.Feed): void;
   setScrollHandler(): (node: HTMLDivElement) => void;
   handleFeedDelete(): void;
 }
@@ -49,38 +49,40 @@ const refreshFeed = (props: FeedProps) => {
 };
 
 const appendFeed = ({ self, id, concatFeed, setFeed }: FeedProps) => {
-  self.props.feed.next &&
-    fetch(self.props.feed.next + '&client_id=' + CLIENT_ID)
-      .then(response => {
-        return response.json();
-      })
-      .then(data => {
-        const items = data.featured.map((featured: any) => {
-          return {
-            title: featured.title,
-            badge: featured.stream.channel.logo,
-            channel: featured.stream.channel.display_name,
-            content: Utils.textFromHTML(featured.text),
-            image: featured.stream.preview.medium,
-            link: featured.stream.channel.url,
-          };
-        });
-        concatFeed(id, items);
-      })
-      .catch(error => {
-        setFeed(id, { status: 'error', error: error, items: [] });
+  self.props.feed.next && fetch(self.props.feed.next + '&client_id=' + CLIENT_ID)
+    .then(response => {
+      return response.json();
+    })
+    .then(data => {
+      if (!data.featured) return;
+      const items = data.featured.map((featured: any) => {
+        return {
+          title: featured.title,
+          badge: featured.stream.channel.logo,
+          channel: featured.stream.channel.display_name,
+          content: Utils.textFromHTML(featured.text),
+          image: featured.stream.preview.medium,
+          link: featured.stream.channel.url,
+        };
       });
+      const feed = { status: 'loaded', next: data._links.next, items: items };
+      concatFeed(id, feed);
+    })
+    .catch(error => {
+      console.error(error);
+      setFeed(id, { status: 'error', error: error, items: [] });
+    });
 };
 
 const ConnectedList = statelessComponent<FeedProps>(
   {
     setScrollHandler: (node: HTMLElement) => (props: FeedProps) => {
-      node && node.addEventListener('scroll', () => {                  
+      node && node.addEventListener('scroll', () => {
         const contentHeight = node.scrollHeight - node.offsetHeight;
-        if (contentHeight <= node.scrollTop) appendFeed(props);        
+        if (contentHeight <= node.scrollTop) appendFeed(props);
       });
     },
-    handleFeedDelete: () => ({id, deleteFeed}: FeedProps) => {
+    handleFeedDelete: () => ({ id, deleteFeed }: FeedProps) => {
       deleteFeed(id);
     }
   },
@@ -113,8 +115,8 @@ const ConnectedList = statelessComponent<FeedProps>(
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
   setFeed: (id: string, feed: Twitch.Feed) => dispatch(Twitch.setFeed(id, feed)),
-  deleteFeed: (id: string) =>  dispatch(Twitch.deleteFeed(id)),
-  concatFeed: (id: string, items: Array<Twitch.Item>) => dispatch(Twitch.concatFeed(id, items)),
+  deleteFeed: (id: string) => dispatch(Twitch.deleteFeed(id)),
+  concatFeed: (id: string, feed: Twitch.Feed) => dispatch(Twitch.concatFeed(id, feed)),
 });
 
 export const Feed = connect(undefined, mapDispatchToProps)(ConnectedList);
