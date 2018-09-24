@@ -4,7 +4,7 @@ import { createStore } from 'redux';
 import { StatefulAction } from '../Actions';
 import * as Twitch from '../Providers/Twitch';
 
-export type State = Map<string, any>;
+export type State = Immutable.Map<string, any>;
 
 export interface Reducer {
   (initialState: any, action: StatefulAction): any;

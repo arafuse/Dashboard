@@ -12,9 +12,9 @@ import { Item } from './Item';
 const CLIENT_ID = '82aaq2cdcyd7e4bj7lyba7ecly34we';
 
 export interface FeedProps {
+  self: React.Component<FeedProps>;
   id: string;
   feed: Twitch.Feed;
-  feedRef: React.RefObject<HTMLDivElement>;
   setFeed(id: string, feed: Twitch.Feed): void;
   concatFeed(id: string, items: Array<Twitch.Item>): void;
   setScrollHandler(): (node: HTMLDivElement) => void;
@@ -46,27 +46,28 @@ const refreshFeed = (props: FeedProps) => {
     });
 };
 
-const appendFeed = ({ id, feed, concatFeed, setFeed }: FeedProps) => {
-  fetch(feed.next + '&client_id=' + CLIENT_ID)
-    .then(response => {
-      return response.json();
-    })
-    .then(data => {
-      const items = data.featured.map((featured: any) => {
-        return {
-          title: featured.title,
-          badge: featured.stream.channel.logo,
-          channel: featured.stream.channel.display_name,
-          content: Utils.textFromHTML(featured.text),
-          image: featured.stream.preview.medium,
-          link: featured.stream.channel.url,
-        };
+const appendFeed = ({ self, id, concatFeed, setFeed }: FeedProps) => {
+  self.props.feed.next &&
+    fetch(self.props.feed.next + '&client_id=' + CLIENT_ID)
+      .then(response => {
+        return response.json();
+      })
+      .then(data => {
+        const items = data.featured.map((featured: any) => {
+          return {
+            title: featured.title,
+            badge: featured.stream.channel.logo,
+            channel: featured.stream.channel.display_name,
+            content: Utils.textFromHTML(featured.text),
+            image: featured.stream.preview.medium,
+            link: featured.stream.channel.url,
+          };
+        });
+        concatFeed(id, items);
+      })
+      .catch(error => {
+        setFeed(id, { status: 'error', error: error, items: [] });
       });
-      concatFeed(id, items);
-    })
-    .catch(error => {
-      setFeed(id, { status: 'error', error: error, items: [] });
-    });
 };
 
 const ConnectedList = statelessComponent<FeedProps>(

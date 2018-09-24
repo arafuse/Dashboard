@@ -22,7 +22,7 @@ export const statelessComponent = <P extends any>(
         preparedHandlers[key] = (...args: Array<any>) => {
           const result = handler(...args);
           if (typeof result === 'function') {
-            return result(Object.assign({}, this.props, this.propHandlers));                        
+            return result(Object.assign({}, {self: this}, this.props, this.propHandlers));                        
           } else {
             return result;
           }
@@ -36,7 +36,7 @@ export const statelessComponent = <P extends any>(
         (functionName) => {
           if (['componentDidMount', 'componentWillUnmount'].includes(functionName)) {
             this[functionName] = () => {
-              lifeCycleHooks[functionName](Object.assign({}, this.props, this.propHandlers));
+              lifeCycleHooks[functionName](Object.assign({}, {self: this}, this.props, this.propHandlers));
             };
           }
           else if (functionName !== 'constructor') {
@@ -45,12 +45,12 @@ export const statelessComponent = <P extends any>(
         },
       );
       if (lifeCycleHooks.constructor) {
-        lifeCycleHooks.constructor(Object.assign({}, this.props, this.propHandlers));
+        lifeCycleHooks.constructor(Object.assign({}, {self: this}, this.props, this.propHandlers));
       }
     }
 
     render() {
-      const props = this.propHandlers ? Object.assign({}, this.props, this.propHandlers) : this.props;
+      const props = this.propHandlers ? Object.assign({}, {self: this}, this.props, this.propHandlers) : this.props;
       return <Component {...Object.assign({}, props)} />;
     }
   };
