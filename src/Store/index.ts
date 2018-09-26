@@ -4,7 +4,7 @@ import { createStore } from 'redux';
 import { StatefulAction } from '../Actions';
 import * as App from '../Reducers/App'
 import * as Config from '../Reducers/Config';
-import * as Twitch from '../Reducers/Twitch';
+import * as Twitch from '../Reducers/Provider/Twitch';
 
 export type State = Immutable.Map<string, any>;
 

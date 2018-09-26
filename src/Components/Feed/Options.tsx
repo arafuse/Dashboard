@@ -6,30 +6,46 @@ import * as Config from '../../Reducers/Config';
 import { statelessComponent } from '../HOC/Stateless';
 import { Modal, ModalProps } from '../Modal';
 
-export interface OptionsProps {  
+export const AUTO_UPDATE_MILLIS = 1000;
+
+export interface OptionsProps {
   id: string;
-  config: Config.Options;
-  handleClose(): void;
-  closeOptions(id: string): void; 
+  options: Config.Options;
+  setOptions: (id: string, options: Config.OptionsUpdate) => void;
+  handleFormChange: () => () => (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const ConnectedOptions = statelessComponent<OptionsProps>(
-  {
-    handleClose: () => ({id, closeOptions}: OptionsProps) => {
-      closeOptions(id);
-    }
-  })(({ config, handleClose }) => (            
-    <div>      
-      <Modal {...{ show: config.show, handleClose } as ModalProps}>               
-        <div className='options__buttons'>
-          <button onClick={handleClose}>Close</button>
-        </div>
-      </Modal>
-    </div>
-  ));
+export const ConnectedOptions = statelessComponent<OptionsProps>({
+  handleFormChange: () => ({id, options, setOptions} : OptionsProps) => {
+    let start = Date.now();
+    return (event: HTMLElementEvent<HTMLFormElement | HTMLInputElement>) => {
+      event.persist();
+      event.preventDefault();
+      start = Date.now();      
+      setTimeout(() => {        
+        if (Date.now() - start >= AUTO_UPDATE_MILLIS) {
+          switch(event.target.name) {
+            case 'width':              
+              setOptions(id, {width: Number.parseInt(event.target.value)});
+          }           
+        }
+      }, AUTO_UPDATE_MILLIS);
+    };
+  }
+})(({ options, handleFormChange }) => (
+  <div>
+    <Modal {...{ show: options.show } as ModalProps}>
+      <div className='options__buttons'>
+        <form onChange={handleFormChange()}>
+          <label>Width</label><input type='text' name='width' defaultValue={options.width.toString()} />
+        </form>
+      </div>
+    </Modal>
+  </div>
+));
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
-  closeOptions: (id: string) => dispatch(Config.closeOptions(id)),
+  setOptions: (id: string, options: Config.OptionsUpdate) => dispatch(Config.setOptions(id, options))
 });
 
 export const Options = connect(undefined, mapDispatchToProps)(ConnectedOptions);

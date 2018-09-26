@@ -4,7 +4,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
 
-import * as Twitch from '../../../Reducers/Twitch';
+import * as Twitch from '../../../Reducers/Provider/Twitch';
 import * as Config from '../../../Reducers/Config';
 import * as Utils from '../../../Utils';
 import { statelessComponent } from '../../HOC/Stateless';
@@ -16,13 +16,14 @@ export interface FeedProps {
   id: string;
   feed: Twitch.Feed;
   self: React.Component<FeedProps>;
+  options: Config.Options;
   setFeed(id: string, feed: Twitch.Feed): void;
   deleteFeed(id: string): void;
   concatFeed(id: string, feed: Twitch.Feed): void;
-  openOptions(id: string): void;
+  toggleOptions(id: string): void;
   setScrollHandler(): (node: HTMLDivElement) => void;
   handleDeleteFeed(): (props: FeedProps) => void;
-  handleOpenOptions(): (props: FeedProps) => void;
+  handleToggleOptions(): (props: FeedProps) => void;
 }
 
 const refreshFeed = (props: FeedProps) => {
@@ -77,7 +78,7 @@ const appendFeed = ({ self, id, concatFeed, setFeed }: FeedProps) => {
     });
 };
 
-const ConnectedList = statelessComponent<FeedProps>(
+const ConnectedFeed = statelessComponent<FeedProps>(
   {
     setScrollHandler: (node: HTMLElement) => (props: FeedProps) => {
       node && node.addEventListener('scroll', () => {
@@ -88,15 +89,15 @@ const ConnectedList = statelessComponent<FeedProps>(
     handleDeleteFeed: () => ({ id, deleteFeed }: FeedProps) => {
       deleteFeed(id);
     },
-    handleOpenOptions: () => ({ id, openOptions }: FeedProps) => {
-      openOptions(id);
+    handleToggleOptions: () => ({ id, toggleOptions }: FeedProps) => {
+      toggleOptions(id);
     }
   },
   {
     componentDidMount: (props: FeedProps) => {
       refreshFeed(props);
     }
-  })(({ feed, setScrollHandler, handleDeleteFeed, handleOpenOptions }) => {
+  })(({ feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions }) => {
     const items = () => {
       if (feed.status === 'loading') {
         return (
@@ -110,10 +111,10 @@ const ConnectedList = statelessComponent<FeedProps>(
       ));
     };
     return (
-      <div ref={setScrollHandler} className='twitch-feed' >
+      <div ref={setScrollHandler} className='twitch-feed' style={{width: options.width}} >
         <div className='twitch-feed__menu'>
           <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
-          <i className='icon fa fa-cog fa-lg' onClick={handleOpenOptions}></i>
+          <i className='icon fa fa-cog fa-lg' onClick={handleToggleOptions}></i>
         </div>
         {items()}
       </div>
@@ -127,7 +128,7 @@ const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
     dispatch(Twitch.deleteFeed(id));
     dispatch(Config.deleteOptions(id));
   },
-  openOptions: (id: string) => dispatch(Config.openOptions(id))
+  toggleOptions: (id: string) => dispatch(Config.toggleOptions(id))
 });
 
-export const Feed = connect(undefined, mapDispatchToProps)(ConnectedList);
+export const Feed = connect(undefined, mapDispatchToProps)(ConnectedFeed);

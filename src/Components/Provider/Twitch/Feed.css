@@ -1,12 +1,11 @@
-.twitch-feed {  
-  width: 350px;
+.twitch-feed {
   display: flex;
-  flex-direction: column;  
-  overflow: auto;  
-  height: calc(100vh - 25px);  
+  flex-direction: column;
+  overflow: auto;
+  height: calc(100vh - 28px);
 }
 
-.twitch-feed__menu i {    
-    float: right;
-    margin: 5px;
+.twitch-feed__menu i {
+  float: right;
+  margin: 5px;
 }

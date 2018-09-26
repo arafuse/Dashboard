@@ -1,7 +1,7 @@
 import * as Immutable from 'immutable';
 
-import { StatefulAction } from '../Actions';
-import {  } from './Config'; 
+import { StatefulAction } from '../../Actions';
+import {  } from '../Config'; 
 
 export const SET_FEED = 'SET_FEED';
 export type SET_FEED = typeof SET_FEED;

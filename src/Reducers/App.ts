@@ -18,8 +18,7 @@ const initialState = StateRecord();
 
 export const reducer = (state = initialState, action: StatefulAction) => {
   switch (action.type) {
-    case TOGGLE_NEW_FEED:    
-      console.log('Toggle');
+    case TOGGLE_NEW_FEED:          
       return state.set('showNewFeed', !state.get('showNewFeed'));
     default:
       return state;

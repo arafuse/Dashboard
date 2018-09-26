@@ -1,12 +1,13 @@
 .feedChooser__icons { 
   position: absolute; 
-  left: 25px;  
+  left: 24px;  
   margin: 0px;
   padding: 5px;  
   background: rgba(63, 63, 63, 0.8);
 }
 
 .feedChooser__icon {
+  border-radius: 15%;
   margin: 5px;
   width: 50px;
 }
