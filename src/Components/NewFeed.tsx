@@ -47,7 +47,7 @@ const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
     switch (type) {
       case 'twitch':
         dispatch(Twitch.addFeed(id));
-        dispatch(Config.addOptions(id, type));
+        dispatch(Config.addOptions(id, {type, validator: Twitch.configValidator}));
         break;
       default:
         throw ('Got invalid feed type:' + type);

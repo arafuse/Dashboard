@@ -10,13 +10,13 @@ export const AUTO_UPDATE_MILLIS = 1000;
 
 export interface OptionsProps {
   id: string;
-  options: Config.Options;
+  options: Config.Options;  
   setOptions: (id: string, options: Config.OptionsUpdate) => void;
   handleFormChange: () => () => (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export const ConnectedOptions = statelessComponent<OptionsProps>({
-  handleFormChange: () => ({id, options, setOptions} : OptionsProps) => {
+  handleFormChange: () => ({id, setOptions} : OptionsProps) => {
     let start = Date.now();
     return (event: HTMLElementEvent<HTMLFormElement | HTMLInputElement>) => {
       event.persist();

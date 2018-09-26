@@ -1,7 +1,7 @@
 import * as Immutable from 'immutable';
 
 import { StatefulAction } from '../../Actions';
-import {  } from '../Config'; 
+import * as Config from '../Config'; 
 
 export const SET_FEED = 'SET_FEED';
 export type SET_FEED = typeof SET_FEED;
@@ -14,6 +14,8 @@ export type ADD_FEED = typeof ADD_FEED;
 
 export const DELETE_FEED = 'DELETE_FEED';
 export type DELETE_FEED = typeof DELETE_FEED;
+
+export const MIN_COLUMN_WIDTH = 350;
 
 export interface Item {
   title: string;
@@ -82,3 +84,10 @@ const updateFeedState = (id: string, state: State, update: FeedUpdate): State =>
   });  
 };
 
+export const configValidator = (key: string, value: any, options: Config.Options): any => {  
+  if (key === 'width') {    
+    if (isNaN(value)) return options.get('width');
+    else if (value < MIN_COLUMN_WIDTH) return MIN_COLUMN_WIDTH;
+  }
+  return value;
+};
