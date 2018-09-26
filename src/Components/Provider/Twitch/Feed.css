@@ -2,8 +2,8 @@
   width: 350px;
   display: flex;
   flex-direction: column;  
-  overflow: auto;
-  height: 97vh;
+  overflow: auto;  
+  height: calc(100vh - 25px);  
 }
 
 .twitch-feed__menu i {    
