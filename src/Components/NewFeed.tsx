@@ -5,6 +5,9 @@ import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
 import { v4 as uuidv4 } from 'uuid';
 import * as twitchIcon from './Provider/Twitch/Icon.svg';
+import * as hnIcon from './Provider/HackerNews/Icon.png';
+import * as twitterIcon from './Provider/Twitter/Icon.svg';
+import * as rssIcon from './Provider/RSS/Icon.svg';
 
 import * as App from '../Reducers/App';
 import * as Twitch from '../Reducers/Twitch';
@@ -15,7 +18,7 @@ import { Modal, ModalProps } from './Modal';
 export interface NewFeedProps {
   show: boolean;
   addFeed(type: string): void;
-  handleAddFeed(type: string): () => (props: NewFeedProps) => void;  
+  handleAddFeed(type: string): () => (props: NewFeedProps) => void;
 }
 
 export const ConnectedNewFeed = statelessComponent<NewFeedProps>(
@@ -23,11 +26,16 @@ export const ConnectedNewFeed = statelessComponent<NewFeedProps>(
     handleAddFeed: (type: string) => ({ addFeed }: NewFeedProps) => () => {
       addFeed(type);
     }
-  })(({ show, handleAddFeed }) => {    
+  })(({ show, handleAddFeed }) => {
     return (
       <div className='feedChooser'>
-        <Modal {...{ show } as ModalProps}>    
-          <img className='feedChooser__icon' src={twitchIcon} onClick={handleAddFeed('twitch')} />
+        <Modal {...{ show } as ModalProps}>
+          <div className='feedChooser__icons'>
+            <img className='feedChooser__icon' src={twitchIcon} onClick={handleAddFeed('twitch')} />
+            <img className='feedChooser__icon' src={twitterIcon}/>
+            <img className='feedChooser__icon' src={hnIcon}/>
+            <img className='feedChooser__icon' src={rssIcon}/>
+          </div>
         </Modal>
       </div>
     );
@@ -39,12 +47,12 @@ const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
     switch (type) {
       case 'twitch':
         dispatch(Twitch.addFeed(id));
-        dispatch(Config.addOptions(id, { show: false, type: type })); 
-        break;       
+        dispatch(Config.addOptions(id, { show: false, type: type }));
+        break;
       default:
-        throw ('Got invalid feed type:' + type);        
-    }    
-    dispatch(App.toggleNewFeed());    
+        throw ('Got invalid feed type:' + type);
+    }
+    dispatch(App.toggleNewFeed());
   }
 });
 
