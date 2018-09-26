@@ -26,39 +26,19 @@ export interface FeedProps {
   handleToggleOptions(): (props: FeedProps) => void;
 }
 
-const refreshFeed = (props: FeedProps) => {
-  const { id, setFeed } = props;
-  setFeed(id, { status: 'loading', items: [] });
-  fetch('https://api.twitch.tv/kraken/streams/featured?client_id=' + CLIENT_ID)
-    .then(response => {
-      return response.json();
-    })
-    .then(data => {
-      const items = data.featured.map((featured: any) => {
-        return {
-          title: featured.title,
-          badge: featured.stream.channel.logo,
-          channel: featured.stream.channel.display_name,
-          content: Utils.textFromHTML(featured.text),
-          image: featured.stream.preview.medium,
-          link: featured.stream.channel.url,
-        };
-      });
-      const feed = { status: 'loaded', next: data._links.next, items: items };
-      setFeed(id, feed);
-    })
-    .catch(error => {
-      setFeed(id, { status: 'error', error: error, items: [] });
-    });
-};
-
 const appendFeed = ({ self, id, concatFeed, setFeed }: FeedProps) => {
-  self.props.feed.next && fetch(self.props.feed.next + '&client_id=' + CLIENT_ID)
+  const url = self.props.feed.next
+    ? self.props.feed.next + '&client_id=' + CLIENT_ID
+    : 'https://api.twitch.tv/kraken/streams/featured?client_id=' + CLIENT_ID;
+
+  fetch(url)
     .then(response => {
       return response.json();
     })
     .then(data => {
-      if (!data.featured) return;
+      if (!data.featured) {
+        return;
+      }
       const items = data.featured.map((featured: any) => {
         return {
           title: featured.title,
@@ -95,7 +75,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
   },
   {
     componentDidMount: (props: FeedProps) => {
-      refreshFeed(props);
+      appendFeed(props);
     }
   })(({ feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions }) => {
     const items = () => {
@@ -111,7 +91,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
       ));
     };
     return (
-      <div ref={setScrollHandler} className='twitch-feed' style={{width: options.width}} >
+      <div ref={setScrollHandler} className='twitch-feed' style={{ width: options.width }} >
         <div className='twitch-feed__menu'>
           <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
           <i className='icon fa fa-cog fa-lg' onClick={handleToggleOptions}></i>
