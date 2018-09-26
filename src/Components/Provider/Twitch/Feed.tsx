@@ -11,6 +11,7 @@ import { statelessComponent } from '../../HOC/Stateless';
 import { Item } from './Item';
 
 const CLIENT_ID = '82aaq2cdcyd7e4bj7lyba7ecly34we';
+const FEATURED_URL = 'https://api.twitch.tv/kraken/streams/featured?client_id=' + CLIENT_ID;
 
 export interface FeedProps {
   id: string;
@@ -24,14 +25,11 @@ export interface FeedProps {
   setScrollHandler(): (node: HTMLDivElement) => void;
   handleDeleteFeed(): (props: FeedProps) => void;
   handleToggleOptions(): (props: FeedProps) => void;
+  handleRefresh(): (props: FeedProps) => void;
 }
 
 const appendFeed = ({ self, id, concatFeed, setFeed }: FeedProps) => {
-  const url = self.props.feed.next
-    ? self.props.feed.next + '&client_id=' + CLIENT_ID
-    : 'https://api.twitch.tv/kraken/streams/featured?client_id=' + CLIENT_ID;
-
-  fetch(url)
+  fetch(self.props.feed.next ? self.props.feed.next + '&client_id=' + CLIENT_ID : FEATURED_URL)
     .then(response => {
       return response.json();
     })
@@ -66,49 +64,61 @@ const ConnectedFeed = statelessComponent<FeedProps>(
         if (contentHeight <= node.scrollTop) appendFeed(props);
       });
     },
+
     handleDeleteFeed: () => ({ id, deleteFeed }: FeedProps) => {
       deleteFeed(id);
     },
+
     handleToggleOptions: () => ({ id, toggleOptions }: FeedProps) => {
       toggleOptions(id);
-    }
+    },
+
+    handleRefresh: () => (props: FeedProps) => {
+      const { self, id, setFeed } = props;
+      setFeed(id, { status: 'loading', next: '', items: [] });
+      self.props.feed.next = '';
+      appendFeed(props);
+    },
   },
   {
     componentDidMount: (props: FeedProps) => {
+      props.setFeed(props.id, { status: 'loading', next: '', items: [] });
       appendFeed(props);
     }
-  })(({ feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions }) => {
-    const items = () => {
-      if (feed.status === 'loading') {
-        return (
-          <div>Loading...</div>
-        );
-      }
-      return feed.items.map((item, id) => (
-        <div key={id}>
-          <Item {...{ item }} />
-        </div>
-      ));
-    };
-    return (
-      <div ref={setScrollHandler} className='twitch-feed' style={{ width: options.width }} >
-        <div className='twitch-feed__menu'>
-          <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
-          <i className='icon fa fa-cog fa-lg' onClick={handleToggleOptions}></i>
-        </div>
-        {items()}
+  }
+)(({ feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh }) => {
+  const items = () => {
+    if (feed.status === 'loading') {
+      return (
+        <div>Loading...</div>
+      );
+    }
+    return feed.items.map((item, id) => (
+      <div key={id}>
+        <Item {...{ item }} />
       </div>
-    );
-  });
+    ));
+  };
+  return (
+    <div ref={setScrollHandler} className='twitch-feed' style={{ width: options.width }} >
+      <div className='twitch-feed__menu'>
+        <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
+        <i className='icon fa fa-cog fa-lg' onClick={handleToggleOptions}></i>
+        <i className='icon fa fa-refresh fa-lg' onClick={handleRefresh} ></i>
+      </div>
+      {items()}
+    </div>
+  );
+});
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
+  toggleOptions: (id: string) => dispatch(Config.toggleOptions(id)),
   setFeed: (id: string, feed: Twitch.Feed) => dispatch(Twitch.setFeed(id, feed)),
   concatFeed: (id: string, feed: Twitch.Feed) => dispatch(Twitch.concatFeed(id, feed)),
   deleteFeed: (id: string) => {
     dispatch(Twitch.deleteFeed(id));
     dispatch(Config.deleteOptions(id));
-  },
-  toggleOptions: (id: string) => dispatch(Config.toggleOptions(id))
+  }
 });
 
 export const Feed = connect(undefined, mapDispatchToProps)(ConnectedFeed);
