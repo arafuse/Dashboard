@@ -4,22 +4,25 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
 
-import * as Twitch from '../../../Providers/Twitch';
+import * as Twitch from '../../../Reducers/Twitch';
+import * as Config from '../../../Reducers/Config';
 import * as Utils from '../../../Utils';
 import { statelessComponent } from '../../HOC/Stateless';
 import { Item } from './Item';
 
 const CLIENT_ID = '82aaq2cdcyd7e4bj7lyba7ecly34we';
 
-export interface FeedProps {  
+export interface FeedProps {
   id: string;
   feed: Twitch.Feed;
   self: React.Component<FeedProps>;
   setFeed(id: string, feed: Twitch.Feed): void;
   deleteFeed(id: string): void;
   concatFeed(id: string, feed: Twitch.Feed): void;
+  openOptions(id: string): void;
   setScrollHandler(): (node: HTMLDivElement) => void;
-  handleFeedDelete(): (props: FeedProps) => void;
+  handleDeleteFeed(): (props: FeedProps) => void;
+  handleOpenOptions(): (props: FeedProps) => void;
 }
 
 const refreshFeed = (props: FeedProps) => {
@@ -82,15 +85,18 @@ const ConnectedList = statelessComponent<FeedProps>(
         if (contentHeight <= node.scrollTop) appendFeed(props);
       });
     },
-    handleFeedDelete: () => ({ id, deleteFeed }: FeedProps) => {
+    handleDeleteFeed: () => ({ id, deleteFeed }: FeedProps) => {
       deleteFeed(id);
+    },
+    handleOpenOptions: () => ({ id, openOptions }: FeedProps) => {
+      openOptions(id);
     }
   },
   {
     componentDidMount: (props: FeedProps) => {
       refreshFeed(props);
     }
-  })(({ feed, handleFeedDelete, setScrollHandler }) => {
+  })(({ feed, setScrollHandler, handleDeleteFeed, handleOpenOptions }) => {
     const items = () => {
       if (feed.status === 'loading') {
         return (
@@ -106,7 +112,8 @@ const ConnectedList = statelessComponent<FeedProps>(
     return (
       <div ref={setScrollHandler} className='twitch-feed' >
         <div className='twitch-feed__menu'>
-          <i className='icon fa fa-trash fa-lg' onClick={handleFeedDelete}></i>
+          <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
+          <i className='icon fa fa-cog fa-lg' onClick={handleOpenOptions}></i>
         </div>
         {items()}
       </div>
@@ -115,8 +122,12 @@ const ConnectedList = statelessComponent<FeedProps>(
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
   setFeed: (id: string, feed: Twitch.Feed) => dispatch(Twitch.setFeed(id, feed)),
-  deleteFeed: (id: string) => dispatch(Twitch.deleteFeed(id)),
   concatFeed: (id: string, feed: Twitch.Feed) => dispatch(Twitch.concatFeed(id, feed)),
+  deleteFeed: (id: string) => {
+    dispatch(Twitch.deleteFeed(id));
+    dispatch(Config.deleteOptions(id));
+  },
+  openOptions: (id: string) => dispatch(Config.openOptions(id))
 });
 
 export const Feed = connect(undefined, mapDispatchToProps)(ConnectedList);

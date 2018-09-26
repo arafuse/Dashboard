@@ -4,8 +4,8 @@ import * as Immutable from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import * as Config from '../../Providers/Config';
-import * as Twitch from '../../Providers/Twitch';
+import * as Config from '../../Reducers/Config';
+import * as Twitch from '../../Reducers/Twitch';
 import { State } from '../../Store';
 import { statelessComponent } from '../HOC/Stateless';
 import { Feed, FeedProps } from '../Provider/Twitch/Feed';

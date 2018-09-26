@@ -2,11 +2,11 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
 
-import * as Config from '../../Providers/Config';
+import * as Config from '../../Reducers/Config';
 import { statelessComponent } from '../HOC/Stateless';
-import { Modal } from '../Modal';
+import { Modal, ModalProps } from '../Modal';
 
-export interface OptionsProps {
+export interface OptionsProps {  
   id: string;
   config: Config.Options;
   handleClose(): void;
@@ -18,10 +18,14 @@ export const ConnectedOptions = statelessComponent<OptionsProps>(
     handleClose: () => ({id, closeOptions}: OptionsProps) => {
       closeOptions(id);
     }
-  })(({ config, handleClose }) => (
-    <Modal {...{ ...config, handleClose }}>
-      Options go here.
-    </Modal>
+  })(({ config, handleClose }) => (            
+    <div>      
+      <Modal {...{ show: config.show, handleClose } as ModalProps}>               
+        <div className='options__buttons'>
+          <button onClick={handleClose}>Close</button>
+        </div>
+      </Modal>
+    </div>
   ));
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({

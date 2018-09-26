@@ -2,7 +2,7 @@ import './Item.css';
 
 import * as React from 'react';
 
-import * as Twitch from '../../../Providers/Twitch';
+import * as Twitch from '../../../Reducers/Twitch';
 import { statelessComponent } from '../../HOC/Stateless';
 
 export interface ItemProps {  

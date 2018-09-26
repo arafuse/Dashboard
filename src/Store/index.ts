@@ -2,8 +2,9 @@ import * as Immutable from 'immutable';
 import { createStore } from 'redux';
 
 import { StatefulAction } from '../Actions';
-import * as Config from '../Providers/Config';
-import * as Twitch from '../Providers/Twitch';
+import * as App from '../Reducers/App'
+import * as Config from '../Reducers/Config';
+import * as Twitch from '../Reducers/Twitch';
 
 export type State = Immutable.Map<string, any>;
 
@@ -30,4 +31,8 @@ const combineReducers = (reducers: { [index: string]: Reducer }) => {
   };
 };
 
-export const store = createStore(combineReducers({ config: Config.reducer, twitch: Twitch.reducer }));
+export const store = createStore(combineReducers({
+  app: App.reducer,
+  config: Config.reducer,
+  twitch: Twitch.reducer
+}));

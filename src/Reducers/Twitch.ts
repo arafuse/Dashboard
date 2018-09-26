@@ -1,7 +1,7 @@
 import * as Immutable from 'immutable';
-import { v4 as uuidv4 } from 'uuid';
 
 import { StatefulAction } from '../Actions';
+import {  } from './Config'; 
 
 export const SET_FEED = 'SET_FEED';
 export type SET_FEED = typeof SET_FEED;
@@ -31,7 +31,7 @@ export interface Feed {
   items: Array<Item>;
 }
 
-export const addFeed = () => ({ type: ADD_FEED, id: uuidv4() });
+export const addFeed = (id: string) => ({ type: ADD_FEED, id: id });
 export const deleteFeed = (id: string) => ({ type: DELETE_FEED, id: id });
 export const setFeed = (id: string, feed: Feed) => ({ type: SET_FEED, id: id, payload: feed });
 export const concatFeed = (id: string, feed: Feed) => ({ type: CONCAT_FEED, id: id, payload: feed });
