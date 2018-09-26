@@ -26,36 +26,59 @@ export interface Item {
 
 export interface Feed {
   status: string;
-  error?: string;
-  next?: string;
+  error: string;
+  next: string;
   items: Array<Item>;
 }
 
+export interface FeedUpdate {
+  status?: string;
+  error?: string;
+  next?: string;
+  items?: Array<Item>;
+}
+
+export type State = Immutable.Map<string, any>;
+
+export const FeedRecord = Immutable.Record({
+  status: 'new',
+  error: '',
+  next: '',
+  items: []
+}, 'Feed');
+
 export const addFeed = (id: string) => ({ type: ADD_FEED, id: id });
 export const deleteFeed = (id: string) => ({ type: DELETE_FEED, id: id });
-export const setFeed = (id: string, feed: Feed) => ({ type: SET_FEED, id: id, payload: feed });
-export const concatFeed = (id: string, feed: Feed) => ({ type: CONCAT_FEED, id: id, payload: feed });
+export const setFeed = (id: string, feed: FeedUpdate) => ({ type: SET_FEED, id: id, payload: feed });
+export const concatFeed = (id: string, feed: FeedUpdate) => ({ type: CONCAT_FEED, id: id, payload: feed });
 
 const initialState = Immutable.Map<string, any>();
 
-export const reducer = (state = initialState, action: StatefulAction) => {
+export const reducer = (state: State = initialState, action: StatefulAction) => {
   switch (action.type) {
     case ADD_FEED:
       if (action.id === undefined) throw ('Got \'undefined\' action id');
-      return state.set(action.id, { status: 'new', error: '', items: [] });
+      return state.set(action.id, FeedRecord());
     case DELETE_FEED:
       if (action.id === undefined) throw ('Got \'undefined\' action id');
       return state.delete(action.id);
     case SET_FEED:
       if (action.id === undefined) throw ('Got \'undefined\' action id');
       action.payload.error && console.error(action.payload.error);
-      return state.set(action.id, action.payload);
+      return updateFeedState(action.id, state, action.payload);
     case CONCAT_FEED:
       if (action.id === undefined) throw ('Got \'undefined\' action id');
-      const feed = state.get(action.id);
-      return state.set(action.id,
-        { ...feed, next: action.payload.next, items: feed.items.concat(action.payload.items) });
+      action.payload.error && console.error(action.payload.error);
+      const items = state.getIn([action.id, 'items']).concat(action.payload.items || []);
+      return updateFeedState(action.id, state, {...action.payload, items});      
     default:
       return state;
   }
 };
+
+const updateFeedState = (id: string, state: State, update: FeedUpdate): State => {
+  return state.withMutations((newState) => {
+    Object.entries(update).forEach(([key, value]) => newState.setIn([id, key], value));
+  });  
+};
+

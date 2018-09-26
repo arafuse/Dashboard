@@ -15,21 +15,21 @@ export type TOGGLE_OPTIONS = typeof TOGGLE_OPTIONS;
 
 export const MIN_COLUMN_WIDTH = 350;
 
-export interface OptionsUpdate {
-  show?: boolean;
-  type?: string;
-  width?: number;
-}
-
 export interface Options extends Immutable.Map<string, any> {
   show: boolean;
   type: string;
   width: number;
 }
 
+export interface OptionsUpdate {
+  show?: boolean;
+  type?: string;
+  width?: number;
+}
+
 export type State = Immutable.Map<string, any>;
 
-const OptionsRecord = Immutable.Record({
+export const OptionsRecord = Immutable.Record({
   show: false,
   type: '',
   width: MIN_COLUMN_WIDTH

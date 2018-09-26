@@ -17,9 +17,9 @@ export interface FeedProps {
   feed: Twitch.Feed;
   self: React.Component<FeedProps>;
   options: Config.Options;
-  setFeed(id: string, feed: Twitch.Feed): void;
+  setFeed(id: string, feed: Twitch.FeedUpdate): void;
   deleteFeed(id: string): void;
-  concatFeed(id: string, feed: Twitch.Feed): void;
+  concatFeed(id: string, feed: Twitch.FeedUpdate): void;
   toggleOptions(id: string): void;
   setScrollHandler(): (node: HTMLDivElement) => void;
   handleDeleteFeed(): (props: FeedProps) => void;
