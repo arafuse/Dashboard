@@ -5,6 +5,7 @@ import { StatefulAction } from '../Actions';
 import * as App from '../Reducers/App'
 import * as Config from '../Reducers/Config';
 import * as Twitch from '../Reducers/Provider/Twitch';
+import * as HackerNews from '../Reducers/Provider/HackerNews';
 
 export type State = Immutable.Map<string, any>;
 
@@ -34,5 +35,6 @@ const combineReducers = (reducers: { [index: string]: Reducer }) => {
 export const store = createStore(combineReducers({
   app: App.reducer,
   config: Config.reducer,
-  twitch: Twitch.reducer
+  twitch: Twitch.reducer,
+  hn: HackerNews.reducer
 }));

@@ -1,0 +1,11 @@
+.hn-feed {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  height: calc(100vh - 28px);
+}
+
+.hn-feed__menu i {
+  float: right;
+  margin: 5px;
+}

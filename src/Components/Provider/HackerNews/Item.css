@@ -1,40 +1,40 @@
-.twitch-item {
+.hn-item {
   margin-bottom: 10px;
   border: 1px solid #3f3f3f;
   padding: 10px;
 }
 
-.twitch-item__header {
+.hn-item__header {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
 
-.twitch-item__badge {       
+.hn-item__badge {       
   height: 100px;    
   padding-right: 10px;  
 }
 
-.twitch-item__badge img { 
+.hn-item__badge img { 
   height: 100%;
   border-radius: 5%; 
 }
 
-.twitch-item__image img {  
+.hn-item__image img {  
   max-width: 100%;
   border-radius: 3%;  
 }
 
-.twitch-item__info {
+.hn-item__info {
   display: block;
   text-align: right;
 }
 
-.twitch-item__title {
+.hn-item__title {
   font-size: 1.2em;
 }
 
-.twitch-item__copy-text {
+.hn-item__copy-text {
   margin-top: 10px;
   margin-bottom: 10px;
 }
