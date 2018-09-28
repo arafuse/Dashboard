@@ -1,5 +1,6 @@
 import './Feed.css';
 
+import * as Immutable from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
@@ -8,7 +9,7 @@ import * as Twitch from '../../../Reducers/Provider/Twitch';
 import * as Config from '../../../Reducers/Config';
 import * as Utils from '../../../Utils';
 import { statelessComponent } from '../../HOC/Stateless';
-import { Item } from './Item';
+import { Item, ItemProps } from './Item';
 
 const CLIENT_ID = '82aaq2cdcyd7e4bj7lyba7ecly34we';
 const FEATURED_URL = 'https://api.twitch.tv/kraken/streams/featured?client_id=' + CLIENT_ID;
@@ -52,7 +53,7 @@ const appendFeed = ({ self, id, concatFeed, setFeed }: FeedProps) => {
     })
     .catch(error => {
       console.error(error);
-      setFeed(id, { status: 'error', error: error, items: [] });
+      setFeed(id, { status: 'error', error: error, items: Immutable.List() });
     });
 };
 
@@ -75,14 +76,14 @@ const ConnectedFeed = statelessComponent<FeedProps>(
 
     handleRefresh: () => (props: FeedProps) => {
       const { self, id, setFeed } = props;
-      setFeed(id, { status: 'loading', next: '', items: [] });
+      setFeed(id, { status: 'loading', next: '', items: Immutable.List() });
       self.props.feed.next = '';
       appendFeed(props);
     },
   },
   {
     componentDidMount: (props: FeedProps) => {
-      props.setFeed(props.id, { status: 'loading', next: '', items: [] });
+      props.setFeed(props.id, { status: 'loading', next: '', items: Immutable.List() });
       appendFeed(props);
     }
   }
@@ -95,7 +96,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
     }
     return feed.items.map((item, id) => (
       <div key={id}>
-        <Item {...{ item }} />
+        <Item {...{ item } as ItemProps} />
       </div>
     ));
   };

@@ -1,5 +1,7 @@
+
 import './Feed.css';
 
+import * as Immutable from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
@@ -8,7 +10,7 @@ import * as HackerNews from '../../../Reducers/Provider/HackerNews';
 import * as Config from '../../../Reducers/Config';
 // import * as Utils from '../../../Utils';
 import { statelessComponent } from '../../HOC/Stateless';
-import { Item } from './Item';
+import { Item, ItemProps } from './Item';
 
 const NEW_STORIES_URL = 'https://hacker-news.firebaseio.com/v0/newstories.json';
 //const ITEM_URL = 'https://hacker-news.firebaseio.com/v0/item/${id}.json';
@@ -34,21 +36,22 @@ const appendFeed = (props: FeedProps) => {
     fetch(NEW_STORIES_URL).then(response => response.json()).then(stories => {      
       appendStories(props, stories);
     });
-  } 
+  }
   else {
     appendStories(props, feed.stories)
   };
 };
 
-const appendStories = ({ id, feed, concatFeed, setFeed }: FeedProps, stories: Array<number>) => {
-  const items = stories.slice(feed.items.length, feed.items.length + ITEMS_PER_PAGE).map((story: number) => ({
+const appendStories = ({ id, feed, concatFeed, setFeed }: FeedProps, stories: Array<number>) => {  
+  console.log(stories);  
+  const items = stories.slice(feed.items.size, feed.items.size + ITEMS_PER_PAGE).map((story: number) => ({
     title: 'Test story' + story,
     badge: 'https://cdn.iconscout.com/icon/free/png-512/hacker-news-2-569388.png',
     content: 'Lorem ipsum dolor sit amet.',
     image: 'https://cdn.britannica.com/55/174255-004-9A4971E9.jpg',
     link: 'https://en.wikipedia.org/wiki/Fake_news'
-  }));
-  concatFeed(id, { status: 'loaded', items: items, stories: stories });
+  }));  
+  concatFeed(id, { status: 'loaded', items: Immutable.List(items), stories: stories });
 };
 
 const ConnectedFeed = statelessComponent<FeedProps>(
@@ -70,13 +73,13 @@ const ConnectedFeed = statelessComponent<FeedProps>(
 
     handleRefresh: () => (props: FeedProps) => {
       const { id, setFeed } = props;
-      setFeed(id, { status: 'loading', items: [], stories: []});      
+      setFeed(id, { status: 'loading', items: Immutable.List(), stories: [] });
       appendFeed(props);
     },
   },
   {
     componentDidMount: (props: FeedProps) => {
-      props.setFeed(props.id, { status: 'loading', items: [], stories: []});
+      props.setFeed(props.id, { status: 'loading', items: Immutable.List(), stories: [] });
       appendFeed(props);
     }
   }
@@ -89,7 +92,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
     }
     return feed.items.map((item, id) => (
       <div key={id}>
-        <Item {...{ item }} />
+        <Item {...{ item } as ItemProps} />
       </div>
     ));
   };

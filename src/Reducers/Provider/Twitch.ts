@@ -30,14 +30,14 @@ export interface Feed {
   status: string;
   error: string;
   next: string;
-  items: Array<Item>;
+  items: Immutable.List<Item>;
 }
 
 export interface FeedUpdate {
   status?: string;
   error?: string;
   next?: string;
-  items?: Array<Item>;
+  items?: Immutable.List<Item>;
 }
 
 export type State = Immutable.Map<string, any>;
@@ -46,7 +46,7 @@ export const FeedRecord = Immutable.Record({
   status: 'new',
   error: '',
   next: '',
-  items: []
+  items: Immutable.List<Item>(),
 }, 'Feed');
 
 export const addFeed = (id: string) => ({ type: ADD_FEED, id: id });
@@ -71,7 +71,7 @@ export const reducer = (state: State = initialState, action: StatefulAction) => 
     case CONCAT_FEED:
       if (action.id === undefined) throw ('Got \'undefined\' action id');
       action.payload.error && console.error(action.payload.error);
-      const items = state.getIn([action.id, 'items']).concat(action.payload.items || []);
+      const items = state.getIn([action.id, 'items']).concat(action.payload.items);
       return updateFeedState(action.id, state, {...action.payload, items});      
     default:
       return state;

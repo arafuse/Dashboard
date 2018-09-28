@@ -20,28 +20,33 @@ export interface ContainerProps {
 }
 
 const ConnectedContainer = statelessComponent<ContainerProps>()
-  (({ configs, twitchFeeds, hnFeeds }) => (
-    <div className='streams-container'>
-      {Object.entries(twitchFeeds.toJS()).map(([id, feed]) => {
-        const options = configs.get(id);
-        return (          
-          <div key={id}>
-            <Options {...{ id, options } as OptionsProps} />
-            <TwitchFeed {...{ id, feed, options } as TwitchFeedProps} />
-          </div>
-        );
-      })}
-      {Object.entries(hnFeeds.toJS()).map(([id, feed]) => {
-        const options = configs.get(id);
-        return (          
-          <div key={id}>
-            <Options {...{ id, options } as OptionsProps} />
-            <HackerNewsFeed {...{ id, feed, options } as HackerNewsFeedProps} />
-          </div>
-        );
-      })}      
-    </div>
-  ));
+  (({ configs, twitchFeeds, hnFeeds }) => {
+    // Mapping outside of JSX due to https://github.com/facebook/immutable-js/issues/1430
+    const nodes: Array<React.ReactNode> = [];
+    twitchFeeds.map((feed, id) => {
+      const options = configs.get(id as string);
+      nodes.push(
+        <div key={id}>
+          <Options {...{ id, options } as OptionsProps} />
+          <TwitchFeed {...{ id, feed, options } as TwitchFeedProps} />
+        </div>
+      );
+    });
+    hnFeeds.map((feed, id) => {
+      const options = configs.get(id as string);
+      nodes.push(
+        <div key={id}>
+          <Options {...{ id, options } as OptionsProps} />
+          <HackerNewsFeed {...{ id, feed, options } as HackerNewsFeedProps} />
+        </div>
+      );
+    });
+    return (
+      <div className='streams-container'>
+        {nodes}
+      </div>
+    );
+  });
 
 const mapStateToProps = (state: State) => {
   return {

@@ -12,7 +12,8 @@
     "rootDir": "src",    
     "forceConsistentCasingInFileNames": true,    
     "noImplicitReturns": true,                
-    "noUnusedLocals": true,
+    "downlevelIteration": true,
+    "noUnusedLocals": true,    
     "strict": true,    
   },
   "include": [
