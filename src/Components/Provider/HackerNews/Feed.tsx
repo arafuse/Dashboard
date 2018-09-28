@@ -21,14 +21,15 @@ export interface FeedProps {
   id: string;
   feed: HackerNews.Feed;
   options: Config.Options;
-  setFeed(id: string, feed: HackerNews.FeedUpdate): void;
+  setFeed(id: string, feed: HackerNews.FeedParams): void;
   deleteFeed(id: string): void;
-  concatFeed(id: string, feed: HackerNews.FeedUpdate): void;
+  concatFeed(id: string, feed: HackerNews.FeedParams): void;
+  setItem(id: string, item: HackerNews.SetItemParams): void;
   toggleOptions(id: string): void;
   setScrollHandler(): (node: HTMLDivElement) => void;
   handleDeleteFeed(): (props: FeedProps) => void;
   handleToggleOptions(): (props: FeedProps) => void;
-  handleRefresh(): (props: FeedProps) => void;
+  handleRefresh(): (props: FeedProps) => void;  
 }
 
 const appendFeed = (props: FeedProps) => {
@@ -39,26 +40,24 @@ const appendFeed = (props: FeedProps) => {
     });
   }
   else {
-    appendStories(props, feed.storyIds)
-  };
+    appendStories(props, feed.storyIds);
+  }
 };
 
-const appendStories = ({ id, feed, concatFeed, setFeed }: FeedProps, storyIds: Array<string>) => {
+const appendStories = ({ id, feed, concatFeed, setItem }: FeedProps, storyIds: Array<string>) => {
   const items = Immutable.OrderedMap<string, HackerNews.Item>().withMutations((newItems) => {
     storyIds.slice(feed.items.size, feed.items.size + ITEMS_PER_PAGE).forEach((storyId: string) =>
-      newItems.set(storyId, {
-        title: '',
-        badge: '',
-        user: '',
-        content: '',
-        image: '',
-        link: ''
-      }));
+      newItems.set(storyId, HackerNews.ItemRecord({
+        title: 'Test'
+      }) as HackerNews.Item));
   });
   concatFeed(id, { status: 'loaded', items, storyIds });
-  items.forEach((item, id) => {
-    fetch(format(ITEM_URL, id as string)).then(response => response.json()).then(story => {
-      console.log(story);
+  items.forEach((item, itemId) => {
+    fetch(format(ITEM_URL, itemId as string)).then(response => response.json()).then(story => {
+      setItem(id, { 
+        id: itemId as string,
+        item: { title: story.title, user: story.by, link: story.url }
+      });
     });
   });
 };
@@ -124,12 +123,10 @@ const ConnectedFeed = statelessComponent<FeedProps>(
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
   toggleOptions: (id: string) => dispatch(Config.toggleOptions(id)),
-  setFeed: (id: string, feed: HackerNews.Feed) => dispatch(HackerNews.setFeed(id, feed)),
-  concatFeed: (id: string, feed: HackerNews.Feed) => dispatch(HackerNews.concatFeed(id, feed)),
-  deleteFeed: (id: string) => {
-    dispatch(HackerNews.deleteFeed(id));
-    dispatch(Config.deleteOptions(id));
-  }
+  setFeed: (id: string, feed: HackerNews.FeedParams) => dispatch(HackerNews.setFeed(id, feed)),
+  concatFeed: (id: string, feed: HackerNews.FeedParams) => dispatch(HackerNews.concatFeed(id, feed)),
+  deleteFeed: (id: string) => { dispatch(HackerNews.deleteFeed(id)); dispatch(Config.deleteOptions(id));},
+  setItem: (id: string, item: HackerNews.SetItemParams) => dispatch(HackerNews.setItem(id, item))
 });
 
 export const Feed = connect(undefined, mapDispatchToProps)(ConnectedFeed);
