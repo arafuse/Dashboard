@@ -11,9 +11,10 @@ import * as Config from '../../../Reducers/Config';
 // import * as Utils from '../../../Utils';
 import { statelessComponent } from '../../HOC/Stateless';
 import { Item, ItemProps } from './Item';
+import * as format from 'string-format';
 
 const NEW_STORIES_URL = 'https://hacker-news.firebaseio.com/v0/newstories.json';
-//const ITEM_URL = 'https://hacker-news.firebaseio.com/v0/item/${id}.json';
+const ITEM_URL = 'https://hacker-news.firebaseio.com/v0/item/{}.json';
 const ITEMS_PER_PAGE = 25;
 
 export interface FeedProps {
@@ -32,26 +33,34 @@ export interface FeedProps {
 
 const appendFeed = (props: FeedProps) => {
   const { feed } = props;
-  if (!feed.stories.length) {
-    fetch(NEW_STORIES_URL).then(response => response.json()).then(stories => {      
+  if (!feed.storyIds.length) {
+    fetch(NEW_STORIES_URL).then(response => response.json()).then(stories => {
       appendStories(props, stories);
     });
   }
   else {
-    appendStories(props, feed.stories)
+    appendStories(props, feed.storyIds)
   };
 };
 
-const appendStories = ({ id, feed, concatFeed, setFeed }: FeedProps, stories: Array<number>) => {  
-  console.log(stories);  
-  const items = stories.slice(feed.items.size, feed.items.size + ITEMS_PER_PAGE).map((story: number) => ({
-    title: 'Test story' + story,
-    badge: 'https://cdn.iconscout.com/icon/free/png-512/hacker-news-2-569388.png',
-    content: 'Lorem ipsum dolor sit amet.',
-    image: 'https://cdn.britannica.com/55/174255-004-9A4971E9.jpg',
-    link: 'https://en.wikipedia.org/wiki/Fake_news'
-  }));  
-  concatFeed(id, { status: 'loaded', items: Immutable.List(items), stories: stories });
+const appendStories = ({ id, feed, concatFeed, setFeed }: FeedProps, storyIds: Array<string>) => {
+  const items = Immutable.OrderedMap<string, HackerNews.Item>().withMutations((newItems) => {
+    storyIds.slice(feed.items.size, feed.items.size + ITEMS_PER_PAGE).forEach((storyId: string) =>
+      newItems.set(storyId, {
+        title: '',
+        badge: '',
+        user: '',
+        content: '',
+        image: '',
+        link: ''
+      }));
+  });
+  concatFeed(id, { status: 'loaded', items, storyIds });
+  items.forEach((item, id) => {
+    fetch(format(ITEM_URL, id as string)).then(response => response.json()).then(story => {
+      console.log(story);
+    });
+  });
 };
 
 const ConnectedFeed = statelessComponent<FeedProps>(
@@ -73,13 +82,13 @@ const ConnectedFeed = statelessComponent<FeedProps>(
 
     handleRefresh: () => (props: FeedProps) => {
       const { id, setFeed } = props;
-      setFeed(id, { status: 'loading', items: Immutable.List(), stories: [] });
+      setFeed(id, { status: 'loading', items: Immutable.OrderedMap(), storyIds: [] });
       appendFeed(props);
     },
   },
   {
     componentDidMount: (props: FeedProps) => {
-      props.setFeed(props.id, { status: 'loading', items: Immutable.List(), stories: [] });
+      props.setFeed(props.id, { status: 'loading', items: Immutable.OrderedMap(), storyIds: [] });
       appendFeed(props);
     }
   }
@@ -90,11 +99,16 @@ const ConnectedFeed = statelessComponent<FeedProps>(
         <div>Loading...</div>
       );
     }
-    return feed.items.map((item, id) => (
+    // https://github.com/facebook/immutable-js/issues/1430
+    const nodes: Array<React.ReactNode> = [];
+    feed.items.map((item, id) => 
+      nodes.push(
       <div key={id}>
         <Item {...{ item } as ItemProps} />
       </div>
-    ));
+      )
+    );
+    return nodes;
   };
   return (
     <div ref={setScrollHandler} className='hn-feed' style={{ width: options.width }} >

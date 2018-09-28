@@ -1,7 +1,7 @@
 import * as Immutable from 'immutable';
 
 import { StatefulAction } from '../../Actions';
-import * as Config from '../Config'; 
+import * as Config from '../Config';
 
 export const SET_FEED = 'HN_SET_FEED';
 export type SET_FEED = typeof SET_FEED;
@@ -19,33 +19,43 @@ export const MIN_COLUMN_WIDTH = 350;
 
 export interface Item {
   title: string;
+  user: string;
   badge: string;
   content: string;
   image: string;
   link: string;
 }
 
+export const ItemRecord = Immutable.Record({
+  title: '',
+  badge: '',
+  user: '',
+  content: '',
+  image: '',
+  link: ''
+});
+
 export interface Feed {
   status: string;
-  error: string;  
-  items: Immutable.List<Item>;
-  stories: Array<number>;
+  error: string;
+  items: Immutable.OrderedMap<string, Item>;
+  storyIds: Array<string>;
 }
 
 export interface FeedUpdate {
   status?: string;
-  error?: string;  
-  items?: Immutable.List<Item>;
-  stories?: Array<number>;
+  error?: string;
+  items?: Immutable.OrderedMap<string, Item>;
+  storyIds?: Array<string>;
 }
 
 export type State = Immutable.Map<string, any>;
 
 export const FeedRecord = Immutable.Record({
   status: 'new',
-  error: '',  
+  error: '',
   items: Immutable.List<Item>(),
-  stories: [],
+  storyIds: [],
 }, 'Feed');
 
 export const addFeed = (id: string) => ({ type: ADD_FEED, id: id });
@@ -69,9 +79,9 @@ export const reducer = (state: State = initialState, action: StatefulAction) => 
       return updateFeedState(action.id, state, action.payload);
     case CONCAT_FEED:
       if (action.id === undefined) throw ('Got \'undefined\' action id');
-      action.payload.error && console.error(action.payload.error);   
+      action.payload.error && console.error(action.payload.error);
       const items = state.getIn([action.id, 'items']).concat(action.payload.items);
-      return updateFeedState(action.id, state, {...action.payload, items});      
+      return updateFeedState(action.id, state, { ...action.payload, items });
     default:
       return state;
   }
@@ -80,11 +90,11 @@ export const reducer = (state: State = initialState, action: StatefulAction) => 
 const updateFeedState = (id: string, state: State, update: FeedUpdate): State => {
   return state.withMutations((newState) => {
     Object.entries(update).forEach(([key, value]) => newState.setIn([id, key], value));
-  });  
+  });
 };
 
-export const configValidator = (key: string, value: any, options: Config.Options): any => {  
-  if (key === 'width') {    
+export const configValidator = (key: string, value: any, options: Config.Options): any => {
+  if (key === 'width') {
     if (isNaN(value)) return options.get('width');
     else if (value < MIN_COLUMN_WIDTH) return MIN_COLUMN_WIDTH;
   }
