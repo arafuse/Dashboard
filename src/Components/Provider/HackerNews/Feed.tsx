@@ -5,10 +5,10 @@ import * as Immutable from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
+import { getMetadata } from 'page-metadata-parser';
 
 import * as HackerNews from '../../../Reducers/Provider/HackerNews';
 import * as Config from '../../../Reducers/Config';
-// import * as Utils from '../../../Utils';
 import { statelessComponent } from '../../HOC/Stateless';
 import { Item, ItemProps } from './Item';
 import * as format from 'string-format';
@@ -20,6 +20,7 @@ const ITEMS_PER_PAGE = 25;
 export interface FeedProps {
   id: string;
   feed: HackerNews.Feed;
+  self: React.Component<FeedProps>;
   options: Config.Options;
   setFeed(id: string, feed: HackerNews.FeedParams): void;
   deleteFeed(id: string): void;
@@ -44,9 +45,10 @@ const appendFeed = (props: FeedProps) => {
   }
 };
 
-const appendStories = ({ id, feed, concatFeed, setItem }: FeedProps, storyIds: Array<string>) => {
+const appendStories = ({ self, id, feed, concatFeed, setItem }: FeedProps, storyIds: Array<string>) => {
+  const length = self.props.feed.items.size;
   const items = Immutable.OrderedMap<string, HackerNews.Item>().withMutations((newItems) => {
-    storyIds.slice(feed.items.size, feed.items.size + ITEMS_PER_PAGE).forEach((storyId: string) =>
+    storyIds.slice(length, length + ITEMS_PER_PAGE).forEach((storyId: string) =>
       newItems.set(storyId, HackerNews.ItemRecord({
         title: 'Test'
       }) as HackerNews.Item));
@@ -58,6 +60,12 @@ const appendStories = ({ id, feed, concatFeed, setItem }: FeedProps, storyIds: A
         id: itemId as string,
         item: { title: story.title, user: story.by, link: story.url }
       });
+      fetch(story.url).then(response => response.text()).then(html =>{
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const metadata = getMetadata(doc, story.url);        
+        console.log(metadata);
+      });      
     });
   });
 };
