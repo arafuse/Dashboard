@@ -45,7 +45,7 @@ const appendFeed = ({ self, id, concatFeed, setFeed }: FeedProps) => {
           badge: featured.stream.channel.logo,
           channel: featured.stream.channel.display_name,
           content: Utils.textFromHTML(featured.text),
-          image: featured.stream.preview.medium,
+          image: featured.stream.preview.large,
           link: featured.stream.channel.url,
         };
       });
