@@ -27,6 +27,7 @@ export interface ItemParams {
   content?: string;
   image?: string;
   link?: string;
+  discussion?: string;
 }
 
 export const ItemRecord = Immutable.Record({
@@ -35,7 +36,8 @@ export const ItemRecord = Immutable.Record({
   user: '',
   content: '',
   image: '',
-  link: ''
+  link: '',
+  discussion: ''
 });
 
 export class Item extends ItemRecord {
@@ -45,6 +47,7 @@ export class Item extends ItemRecord {
   content: string | undefined;
   image: string | undefined;
   link: string | undefined;
+  discussion: string | undefined;
 
   constructor(params: ItemParams) {    
     params ? super(params) : super();     

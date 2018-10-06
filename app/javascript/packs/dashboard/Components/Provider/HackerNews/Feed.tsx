@@ -13,9 +13,9 @@ import { statelessComponent } from '../../HOC/Stateless';
 import { Item, ItemProps } from './Item';
 import * as format from 'string-format';
 
+const ITEMS_PER_PAGE = 10;
 const NEW_STORIES_URL = 'https://hacker-news.firebaseio.com/v0/newstories.json';
 const ITEM_URL = 'https://hacker-news.firebaseio.com/v0/item/{}.json';
-const ITEMS_PER_PAGE = 25;
 
 export interface FeedProps {
   id: string;
@@ -54,19 +54,31 @@ const appendStories = ({ self, id, feed, concatFeed, setItem }: FeedProps, story
       }) as HackerNews.Item));
   });
   concatFeed(id, { status: 'loaded', items, storyIds });
-  items.forEach((item, itemId) => {
+  items.forEach((_, itemId) => {
     fetch(format(ITEM_URL, itemId as string)).then(response => response.json()).then(story => {
+      const discussion = 'https://news.ycombinator.com/item?id=' + itemId
+      const link = story.url || discussion
       setItem(id, { 
         id: itemId as string,
-        item: { title: story.title, user: story.by, link: story.url }
+        item: { 
+          title: story.title, 
+          user: story.by,
+          link: link, 
+          discussion: discussion,
+          badge: 'https://news.ycombinator.com/favicon.ico'
+        }
       });
       if (!story.url) return;
       const urlEncoded = encodeURIComponent(Buffer.from(story.url).toString('base64'));
       fetch('/fetch/' + urlEncoded).then(response => response.text()).then(html =>{                
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        const metadata = getMetadata(doc, story.url);        
-        console.log(metadata);        
+        const metadata = getMetadata(doc, story.url);
+        const icon = metadata.icon || 'https://news.ycombinator.com/favicon.ico'
+        setItem(id, { 
+          id: itemId as string,
+          item: { content: metadata.description, image: metadata.image, badge: icon }
+        });      
       });      
     });
   });

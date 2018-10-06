@@ -11,8 +11,9 @@ import * as Utils from '../../../Utils';
 import { statelessComponent } from '../../HOC/Stateless';
 import { Item, ItemProps } from './Item';
 
-const CLIENT_ID = '82aaq2cdcyd7e4bj7lyba7ecly34we';
-const FEATURED_URL = 'https://api.twitch.tv/kraken/streams/featured?client_id=' + CLIENT_ID;
+const ITEMS_PER_PAGE = 10;
+const CLIENT_ID = '82aaq2cdcyd7e4bj7lyba7ecly34we';  // TODO: Should be a secret on backend
+const FEATURED_URL = `https://api.twitch.tv/kraken/streams/featured?limit=${ITEMS_PER_PAGE}&client_id=` + CLIENT_ID;
 
 export interface FeedProps {
   id: string;
