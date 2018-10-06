@@ -60,11 +60,13 @@ const appendStories = ({ self, id, feed, concatFeed, setItem }: FeedProps, story
         id: itemId as string,
         item: { title: story.title, user: story.by, link: story.url }
       });
-      fetch(story.url).then(response => response.text()).then(html =>{
+      if (!story.url) return;
+      const urlEncoded = encodeURIComponent(Buffer.from(story.url).toString('base64'));
+      fetch('/fetch/' + urlEncoded).then(response => response.text()).then(html =>{                
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const metadata = getMetadata(doc, story.url);        
-        console.log(metadata);
+        console.log(metadata);        
       });      
     });
   });
