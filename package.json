@@ -9,8 +9,10 @@
     "@types/sanitize-html": "^1.18.2",
     "@types/string-format": "^2.0.0",
     "@types/uuid": "^3.4.4",
+    "awesome-typescript-loader": "^5.2.1",
     "babel-preset-react": "^6.24.1",
     "caniuse-lite": "^1.0.30000889",
+    "css-loader": "^1.0.0",
     "font-awesome": "^4.7.0",
     "immutable": "^3.8.2",
     "normalize.css": "^8.0.0",
@@ -27,16 +29,14 @@
     "resolve-url-loader": "^3.0.0",
     "sanitize-html": "^1.19.1",
     "string-format": "^2.0.0",
+    "style-loader": "^0.23.0",
     "ts-loader": "^5.2.1",
     "typeface-roboto": "^0.0.54",
     "typescript": "^3.1.1",
     "uuid": "^3.3.2"
   },
-  "devDependencies": {
-    "awesome-typescript-loader": "^5.2.1",
-    "css-loader": "^1.0.0",
-    "source-map-loader": "^0.2.4",
-    "style-loader": "^0.23.0",
+  "devDependencies": {    
+    "source-map-loader": "^0.2.4",    
     "webpack-dev-server": "^3.1.9"
   }
 }
