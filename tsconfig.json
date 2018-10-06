@@ -17,7 +17,7 @@
     "strict": true,    
   },
   "include": [
-    "app/javascript/packs/**/*"
+    "client/**/*"
   ],  
   "exclude": [
     "**/*.spec.ts",
