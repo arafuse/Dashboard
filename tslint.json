@@ -1,0 +1,26 @@
+{
+  "extends": [],
+  "defaultSeverity": "warning",
+  "linterOptions": {
+    "exclude": [ "node_modules/**/*.ts"]
+  },
+  "rules": {
+    "no-any": false,
+    "no-magic-numbers": true,
+    "only-arrow-functions": [true],
+    "curly": false,
+    "no-var-keyword": true,
+    "triple-equals": true,
+    "indent": [true, "spaces"],
+    "prefer-const": true,
+    "semicolon": [true, "always"],
+    "eofline": true,
+    "trailing-comma": [false],
+    "arrow-return-shorthand": [true],
+    "class-name": true,
+    "interface-name": [false],
+    "quotemark": [true, "single"],
+    "no-unused-variable": [true],
+    "no-unused-expression": [true, "allow-fast-null-checks"]
+  }
+}
