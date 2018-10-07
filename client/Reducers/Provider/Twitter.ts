@@ -58,14 +58,14 @@ export interface Feed {
   status: string;
   error: string;
   items: Immutable.OrderedMap<string, Item>;
-  stream: ReadableStream | null;  
+  stream: Array<any> | null;
 }
 
 export interface FeedParams {
   status?: string;
   error?: string;
   items?: Immutable.OrderedMap<string, Item>;
-  stream?: ReadableStream | null;  
+  stream?: Array<any> | null;
 }
 
 export type State = Immutable.Map<string, any>;

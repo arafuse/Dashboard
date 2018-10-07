@@ -1,8 +1,10 @@
 import './Feed.css';
 
+import * as Immutable from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
+import { v4 as uuidv4 } from 'uuid';
 
 import * as Config from '../../../Reducers/Config';
 import * as Twitter from '../../../Reducers/Provider/Twitter';
@@ -10,11 +12,13 @@ import { Options, OptionsProps } from './Options';
 import { statelessComponent } from '../../HOC/Stateless';
 import { Item, ItemProps } from './Item';
 
-//const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 10;
+const MAX_ITEMS= 100;
 
 export interface FeedProps {
   id: string;
   feed: Twitter.Feed;
+  self: React.Component<FeedProps>;
   options: Config.Options;
   setFeed(id: string, feed: Twitter.FeedParams): void;
   deleteFeed(id: string): void;
@@ -27,16 +31,38 @@ export interface FeedProps {
   handleRefresh(): (props: FeedProps) => void;
 }
 
-const appendFeed = (props: FeedProps) => {  
-  console.log('Append feed');    
+const appendFeed = (props: FeedProps, stream: Array<any> | null) => {  
+  const {options} = props;  
+  if (!stream && options.query) {
+    const queryEncoded = Buffer.from(options.query).toString('base64');
+    fetch(`/twitter/scrape/${queryEncoded}/${MAX_ITEMS}`).then(response => response.json()).then(newStream => {                  
+      appendTweets(props, newStream);      
+    });
+  } else {        
+    appendTweets(props, stream || []);
+  }
+};
+
+const appendTweets = ({id, feed, concatFeed}: FeedProps, stream: Array<any>) => {
+  const length = feed.items.size;  
+  const items = Immutable.OrderedMap<string, Twitter.Item>().withMutations((newItems) => {    
+    stream.slice(length, length + ITEMS_PER_PAGE).forEach((tweet: any) =>       
+      newItems.set(uuidv4(), Twitter.ItemRecord({
+        user: tweet.screenName,
+        content: tweet.text
+      }) as Twitter.Item));
+  });
+  concatFeed(id, { status: 'loaded', items, stream});
 };
 
 const ConnectedFeed = statelessComponent<FeedProps>(
   {
-    setScrollHandler: (node: HTMLElement) => (props: FeedProps) => {
+    setScrollHandler: (node: HTMLElement) => ({self}: FeedProps) => {
       node && node.addEventListener('scroll', () => {
         const contentHeight = node.scrollHeight - node.offsetHeight;
-        if (contentHeight <= node.scrollTop) appendFeed(props);
+        if (contentHeight <= node.scrollTop) {          
+          appendFeed(self.props, self.props.feed.stream);
+        }
       });
     },
 
@@ -48,19 +74,18 @@ const ConnectedFeed = statelessComponent<FeedProps>(
       toggleOptions(id);
     },
 
-    handleRefresh: () => (props: FeedProps) => {
-      const { id, setFeed } = props;
-      setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
-      appendFeed(props);
+    handleRefresh: () => ({self}: FeedProps) => {
+      const { id, setFeed } = self.props;
+      setFeed(id, { ...Twitter.emptyFeed, status: 'loading', stream: null});
+      appendFeed(self.props, null);
     },
   },
   {
     componentDidMount: (props: FeedProps) => {
       const { id, setFeed, toggleOptions } = props;
       setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
-      toggleOptions(id);
-      appendFeed(props);
-    }
+      toggleOptions(id);      
+    },
   }
 )(({ id, feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh }) => {
   const items = () => {

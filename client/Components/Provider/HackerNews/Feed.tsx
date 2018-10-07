@@ -45,7 +45,7 @@ const appendFeed = (props: FeedProps) => {
   }
 };
 
-const appendStories = ({ self, id, feed, concatFeed, setItem }: FeedProps, storyIds: Array<string>) => {
+const appendStories = ({ self, id, concatFeed, setItem }: FeedProps, storyIds: Array<string>) => {
   const length = self.props.feed.items.size;
   const items = Immutable.OrderedMap<string, HackerNews.Item>().withMutations((newItems) => {
     storyIds.slice(length, length + ITEMS_PER_PAGE).forEach((storyId: string) =>

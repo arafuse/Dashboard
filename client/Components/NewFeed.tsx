@@ -4,18 +4,18 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
 import { v4 as uuidv4 } from 'uuid';
-import * as twitchIcon from './Provider/Twitch/Icon.svg';
-import * as hnIcon from './Provider/HackerNews/Icon.svg';
-import * as twitterIcon from './Provider/Twitter/Icon.svg';
-import * as rssIcon from './Provider/RSS/Icon.svg';
 
 import * as App from '../Reducers/App';
-import * as Twitch from '../Reducers/Provider/Twitch';
-import * as HackerNews from '../Reducers/Provider/HackerNews';
-import * as Twitter from '../Reducers/Provider/Twitter';
 import * as Config from '../Reducers/Config';
+import * as HackerNews from '../Reducers/Provider/HackerNews';
+import * as Twitch from '../Reducers/Provider/Twitch';
+import * as Twitter from '../Reducers/Provider/Twitter';
 import { statelessComponent } from './HOC/Stateless';
 import { Modal, ModalProps } from './Modal';
+import * as hnIcon from './Provider/HackerNews/Icon.svg';
+import * as rssIcon from './Provider/RSS/Icon.svg';
+import * as twitchIcon from './Provider/Twitch/Icon.svg';
+import * as twitterIcon from './Provider/Twitter/Icon.svg';
 
 export interface NewFeedProps {
   show: boolean;

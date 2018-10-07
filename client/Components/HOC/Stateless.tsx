@@ -1,5 +1,13 @@
 import * as React from 'react';
 
+const lifeCycleMethodNames = [
+  'componentDidMount', 
+  'componentWillUnmount',
+  'shouldComponentUpdate',
+  'componentDidUpdate',
+  'componentDidCatch',
+];
+
 export const statelessComponent = <P extends any>(
   propHandlers?: { [index: string]: Function },
   lifeCycleHooks?: { [index: string]: Function }
@@ -33,7 +41,7 @@ export const statelessComponent = <P extends any>(
 
     setLifeCycleHooks(lifeCycleHooks: { [index: string]: Function }) {
       Object.keys(lifeCycleHooks).forEach((functionName) => {
-        if (['componentDidMount', 'componentWillUnmount'].includes(functionName)) {
+        if (lifeCycleMethodNames.includes(functionName)) {
           this[functionName] = () => {
             lifeCycleHooks[functionName](Object.assign({}, { self: this }, this.props, this.propHandlers));
           };
