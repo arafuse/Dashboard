@@ -2,21 +2,22 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
 
-import * as Config from '../../Reducers/Config';
-import { statelessComponent } from '../HOC/Stateless';
-import { Modal, ModalProps } from '../Modal';
+import * as Config from '../../../Reducers/Config';
+import * as Twitter from '../../../Reducers/Provider/Twitter';
+import { statelessComponent } from '../../HOC/Stateless';
+import { Modal, ModalProps } from '../../Modal';
 
 export const AUTO_UPDATE_MILLIS = 500;
 
 export interface OptionsProps {
   id: string;
   options: Config.Options;
-  setOptions: (id: string, options: Config.OptionsUpdate) => void;
+  setFeed(id: string, feed: Twitter.FeedParams): void;
   handleFormChange: () => () => (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export const ConnectedOptions = statelessComponent<OptionsProps>({
-  handleFormChange: () => ({ id, setOptions }: OptionsProps) => {
+  handleFormChange: () => ({ id, setFeed }: OptionsProps) => {
     let start = Date.now();
     return (event: HTMLElementEvent<HTMLFormElement | HTMLInputElement>) => {
       event.persist();
@@ -25,8 +26,8 @@ export const ConnectedOptions = statelessComponent<OptionsProps>({
       setTimeout(() => {
         if (Date.now() - start >= AUTO_UPDATE_MILLIS) {
           switch (event.target.name) {
-            case 'width':
-              setOptions(id, { width: Number.parseInt(event.target.value) });
+            case 'query':
+              setFeed(id, { query: event.target.value });
           }
         }
       }, AUTO_UPDATE_MILLIS);
@@ -37,7 +38,7 @@ export const ConnectedOptions = statelessComponent<OptionsProps>({
     <Modal {...{ show: options.show } as ModalProps}>
       <div className='options__buttons'>
         <form onChange={handleFormChange()}>
-          <label>Width </label><input type='text' name='width' defaultValue={options.width.toString()} />
+          <label>Query </label><input type='text' name='query' />
         </form>
       </div>
     </Modal>
@@ -45,7 +46,7 @@ export const ConnectedOptions = statelessComponent<OptionsProps>({
 ));
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
-  setOptions: (id: string, options: Config.OptionsUpdate) => dispatch(Config.setOptions(id, options))
+  setFeed: (id: string, feed: Twitter.FeedParams) => dispatch(Twitter.setFeed(id, feed))
 });
 
 export const Options = connect(undefined, mapDispatchToProps)(ConnectedOptions);

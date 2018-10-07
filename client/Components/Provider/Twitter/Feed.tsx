@@ -3,14 +3,15 @@ import './Feed.css';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
-// import { TweetStream } from 'scrape-twitter';
+//import { TweetStream } from 'scrape-twitter';
 
 import * as Config from '../../../Reducers/Config';
 import * as Twitter from '../../../Reducers/Provider/Twitter';
+import { Options, OptionsProps } from './Options';
 import { statelessComponent } from '../../HOC/Stateless';
 import { Item, ItemProps } from './Item';
 
-// const ITEMS_PER_PAGE = 10;
+//const ITEMS_PER_PAGE = 10;
 
 export interface FeedProps {
   id: string;
@@ -28,6 +29,7 @@ export interface FeedProps {
 }
 
 const appendFeed = (props: FeedProps) => {
+
   console.log('Append feed');
 }
 
@@ -56,11 +58,13 @@ const ConnectedFeed = statelessComponent<FeedProps>(
   },
   {
     componentDidMount: (props: FeedProps) => {
-      props.setFeed(props.id, { ...Twitter.emptyFeed, status: 'loading' });
+      const { id, setFeed, toggleOptions } = props;
+      setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
+      toggleOptions(id);
       appendFeed(props);
     }
   }
-)(({ feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh }) => {
+)(({ id, feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh }) => {
   const items = () => {
     if (feed.status === 'loading') {
       return (
@@ -80,6 +84,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
   };
   return (
     <div ref={setScrollHandler} className='twitter-feed' style={{ width: options.width }} >
+      <Options {...{ id, options } as OptionsProps} />
       <div className='twitter-feed__menu'>
         <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
         <i className='icon fa fa-cog fa-lg' onClick={handleToggleOptions}></i>
