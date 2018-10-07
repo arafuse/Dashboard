@@ -13,7 +13,8 @@ WORKDIR /app/
 
 RUN bundle install --deployment --without="development test"
 
-ENV RACK_ENV=production \
+ENV NODE_ENV=production \
+    RACK_ENV=production \
     RAILS_ENV=production \
     RAILS_SERVE_STATIC_FILES=true
 
