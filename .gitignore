@@ -20,6 +20,9 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
+# Ignore secrets.
+/config/secrets.yml
+
 # Ignore public assets and generated bundles.
 /public/packs
 /public/packs-test

@@ -12,8 +12,7 @@ import { statelessComponent } from '../../HOC/Stateless';
 import { Item, ItemProps } from './Item';
 
 const ITEMS_PER_PAGE = 10;
-const CLIENT_ID = '82aaq2cdcyd7e4bj7lyba7ecly34we';  // TODO: Should be a secret on backend
-const FEATURED_URL = `https://api.twitch.tv/kraken/streams/featured?limit=${ITEMS_PER_PAGE}&client_id=` + CLIENT_ID;
+const FEATURED_URL = `https://api.twitch.tv/kraken/streams/featured?limit=${ITEMS_PER_PAGE}&client_id=`;
 
 export interface FeedProps {
   id: string;
@@ -31,7 +30,9 @@ export interface FeedProps {
 }
 
 const appendFeed = ({ self, id, concatFeed, setFeed }: FeedProps) => {
-  fetch(self.props.feed.next ? self.props.feed.next + '&client_id=' + CLIENT_ID : FEATURED_URL)
+  const url = self.props.feed.next ? self.props.feed.next + '&client_id=' : FEATURED_URL;
+  const urlEncoded = encodeURIComponent(Buffer.from(url).toString('base64'));
+  fetch('/twitch/sign/' + urlEncoded)
     .then(response => {
       return response.json();
     })
