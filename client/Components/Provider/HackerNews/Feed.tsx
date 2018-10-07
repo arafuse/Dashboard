@@ -30,7 +30,7 @@ export interface FeedProps {
   setScrollHandler(): (node: HTMLDivElement) => void;
   handleDeleteFeed(): (props: FeedProps) => void;
   handleToggleOptions(): (props: FeedProps) => void;
-  handleRefresh(): (props: FeedProps) => void;  
+  handleRefresh(): (props: FeedProps) => void;
 }
 
 const appendFeed = (props: FeedProps) => {
@@ -49,37 +49,35 @@ const appendStories = ({ self, id, concatFeed, setItem }: FeedProps, storyIds: A
   const length = self.props.feed.items.size;
   const items = Immutable.OrderedMap<string, HackerNews.Item>().withMutations((newItems) => {
     storyIds.slice(length, length + ITEMS_PER_PAGE).forEach((storyId: string) =>
-      newItems.set(storyId, HackerNews.ItemRecord({
-        title: 'Test'
-      }) as HackerNews.Item));
+      newItems.set(storyId, { ...HackerNews.emptyItem }));
   });
   concatFeed(id, { status: 'loaded', items, storyIds });
   items.forEach((_, itemId) => {
     fetch(format(ITEM_URL, itemId as string)).then(response => response.json()).then(story => {
       const discussion = 'https://news.ycombinator.com/item?id=' + itemId;
       const link = story.url || discussion;
-      setItem(id, { 
+      setItem(id, {
         id: itemId as string,
-        item: { 
-          title: story.title, 
+        item: {
+          title: story.title,
           user: story.by,
-          link: link, 
+          link: link,
           discussion: discussion,
           badge: 'https://news.ycombinator.com/favicon.ico'
         }
       });
       if (!story.url) return;
       const urlEncoded = encodeURIComponent(Buffer.from(story.url).toString('base64'));
-      fetch('/fetch/' + urlEncoded).then(response => response.text()).then(html =>{                
+      fetch('/fetch/' + urlEncoded).then(response => response.text()).then(html => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const metadata = getMetadata(doc, story.url);
         const icon = metadata.icon || 'https://news.ycombinator.com/favicon.ico';
-        setItem(id, { 
+        setItem(id, {
           id: itemId as string,
           item: { content: metadata.description, image: metadata.image, badge: icon }
-        });      
-      });      
+        });
+      });
     });
   });
 };
@@ -122,11 +120,11 @@ const ConnectedFeed = statelessComponent<FeedProps>(
     }
     // https://github.com/facebook/immutable-js/issues/1430
     const nodes: Array<React.ReactNode> = [];
-    feed.items.map((item, id) => 
+    feed.items.map((item, id) =>
       nodes.push(
-      <div key={id}>
-        <Item {...{ item } as ItemProps} />
-      </div>
+        <div key={id}>
+          <Item {...{ item } as ItemProps} />
+        </div>
       )
     );
     return nodes;
@@ -147,7 +145,7 @@ const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
   toggleOptions: (id: string) => dispatch(Config.toggleOptions(id)),
   setFeed: (id: string, feed: HackerNews.FeedParams) => dispatch(HackerNews.setFeed(id, feed)),
   concatFeed: (id: string, feed: HackerNews.FeedParams) => dispatch(HackerNews.concatFeed(id, feed)),
-  deleteFeed: (id: string) => { dispatch(HackerNews.deleteFeed(id)); dispatch(Config.deleteOptions(id));},
+  deleteFeed: (id: string) => { dispatch(HackerNews.deleteFeed(id)); dispatch(Config.deleteOptions(id)); },
   setItem: (id: string, item: HackerNews.SetItemParams) => dispatch(HackerNews.setItem(id, item))
 });
 
