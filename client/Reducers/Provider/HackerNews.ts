@@ -68,14 +68,14 @@ export interface FeedParams {
   storyIds?: Array<string>;
 }
 
-export type State = Immutable.Map<string, any>;
-
-export const FeedRecord = Immutable.Record({
+export const emptyFeed = {
   status: 'new',
   error: '',
   items: Immutable.List<Item>(),
   storyIds: [],
-}, 'Feed');
+};
+
+export type State = Immutable.Map<string, any>;
 
 export const addFeed = (id: string) => ({ type: ADD_FEED, id: id });
 export const deleteFeed = (id: string) => ({ type: DELETE_FEED, id: id });
@@ -88,7 +88,7 @@ const initialState = Immutable.Map<string, any>();
 export const reducer = (state: State = initialState, action: StatefulAction) => {
   switch (action.type) {
     case ADD_FEED:
-      return state.set(action.id as string, FeedRecord());
+      return state.set(action.id as string, { ...emptyFeed });
     case DELETE_FEED:
       return state.delete(action.id as string);
     case SET_FEED:
@@ -96,7 +96,7 @@ export const reducer = (state: State = initialState, action: StatefulAction) => 
       return updateFeedState(action.id as string, state, action.payload);
     case CONCAT_FEED:
       action.payload.error && console.error(action.payload.error);
-      const items = state.getIn([action.id, 'items']).concat(action.payload.items);
+      const items = state.get(action.id as string).items.concat(action.payload.items);
       return updateFeedState(action.id as string, state, { ...action.payload, items });
     case SET_ITEM:
       action.payload.error && console.error(action.payload.error);
@@ -107,14 +107,13 @@ export const reducer = (state: State = initialState, action: StatefulAction) => 
 };
 
 const updateFeedState = (id: string, state: State, params: FeedParams): State => {
-  return state.withMutations((newState) => {
-    Object.entries(params).forEach(([key, value]) => newState.setIn([id, key], value));
-  });
+  return state.set(id, { ...state.get(id), ...params });
 };
 
 const updateItemState = (id: string, state: State, params: SetItemParams): State => {
-  const oldState = state.getIn([id, 'items', params.id]);
-  return state.setIn([id, 'items', params.id], { ...oldState, ...params.item });
+  const items = state.get(id).items;
+  const newItems = items.set(params.id, { ...items.get(params.id), ...params.item });
+  return state.set(id, { ...state.get(id), items: newItems });
 };
 
 export const configValidator = (id: string, key: string, value: any, options: Config.Options): any => {
