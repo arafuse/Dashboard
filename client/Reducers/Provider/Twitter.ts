@@ -19,6 +19,7 @@ export const SET_ITEM = 'TWITTER_SET_ITEM';
 export type SET_ITEM = typeof SET_ITEM;
 
 export const MIN_COLUMN_WIDTH = 350;
+export const MIN_QUERY_LENGTH = 3;
 
 export interface ItemParams {
   user?: string;
@@ -57,16 +58,14 @@ export interface Feed {
   status: string;
   error: string;
   items: Immutable.OrderedMap<string, Item>;
-  stream: ReadableStream | null;
-  query: string;
+  stream: ReadableStream | null;  
 }
 
 export interface FeedParams {
   status?: string;
   error?: string;
   items?: Immutable.OrderedMap<string, Item>;
-  stream?: ReadableStream | null;
-  query?: string;
+  stream?: ReadableStream | null;  
 }
 
 export type State = Immutable.Map<string, any>;
@@ -75,9 +74,8 @@ export const emptyFeed = {
   status: 'new',
   error: '',
   items: Immutable.OrderedMap<string, Item>(),
-  stream: null,
-  query: ''
-}
+  stream: null,  
+};
 
 export const FeedRecord = Immutable.Record(emptyFeed, 'Feed');
 
@@ -123,9 +121,12 @@ const updateItemState = (id: string, state: State, params: SetItemParams): State
 };
 
 export const configValidator = (key: string, value: any, options: Config.Options): any => {
-  if (key === 'width') {
-    if (isNaN(value)) return options.get('width');
-    else if (value < MIN_COLUMN_WIDTH) return MIN_COLUMN_WIDTH;
+  switch (key) {
+    case 'width':
+      if (isNaN(value)) return options.get('width');
+      else if (value < MIN_COLUMN_WIDTH) return MIN_COLUMN_WIDTH;
+    case 'query':
+      if (value.length < MIN_QUERY_LENGTH) return options.get('query');
   }
   return value;
 };

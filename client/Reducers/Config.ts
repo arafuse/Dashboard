@@ -19,6 +19,7 @@ export interface Options extends Immutable.Map<string, any> {
   show: boolean;
   type: string;
   width: number;
+  query: string;
   validator: Validator;
 }
 
@@ -28,6 +29,7 @@ export interface OptionsUpdate {
   show?: boolean;
   type?: string;
   width?: number;
+  query?: string;
   validator?: Validator;
 }
 
@@ -37,6 +39,7 @@ export const OptionsRecord = Immutable.Record({
   show: false,
   type: '',
   width: MIN_COLUMN_WIDTH,
+  query: '',
   validator: null
 }, 'Options');
 
@@ -52,10 +55,10 @@ export const reducer = (state: State = initialState, action: StatefulAction) => 
     case ADD_OPTIONS:
       if (action.id === undefined) throw ('Got \'undefined\' action id');
       const options = OptionsRecord(action.payload);
-      return updateOptionsState(action.id, state.set(action.id, OptionsRecord(action.payload)), options.toJS());      
+      return updateOptionsState(action.id, state.set(action.id, OptionsRecord(action.payload)), options.toJS());
     case SET_OPTIONS:
-      if (action.id === undefined) throw ('Got \'undefined\' action id');      
-      return updateOptionsState(action.id, state, action.payload);    
+      if (action.id === undefined) throw ('Got \'undefined\' action id');
+      return updateOptionsState(action.id, state, action.payload);
     case DELETE_OPTIONS:
       if (action.id === undefined) throw ('Got \'undefined\' action id');
       return state.delete(action.id);
@@ -70,9 +73,9 @@ export const reducer = (state: State = initialState, action: StatefulAction) => 
 const updateOptionsState = (id: string, state: State, update: OptionsUpdate): State => {
   const options = state.get(id);
   return state.withMutations((newState) => {
-    Object.entries(update).forEach(([key, value]) => {      
-      value = options.validator ? options.validator(key, value, options) : value;         
-      newState.setIn([id, key], value);    
+    Object.entries(update).forEach(([key, value]) => {
+      value = options.validator ? options.validator(key, value, options) : value;
+      newState.setIn([id, key], value);
     });
-  });  
+  });
 };
