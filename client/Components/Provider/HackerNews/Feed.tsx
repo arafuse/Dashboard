@@ -56,8 +56,8 @@ const appendStories = ({ self, id, feed, concatFeed, setItem }: FeedProps, story
   concatFeed(id, { status: 'loaded', items, storyIds });
   items.forEach((_, itemId) => {
     fetch(format(ITEM_URL, itemId as string)).then(response => response.json()).then(story => {
-      const discussion = 'https://news.ycombinator.com/item?id=' + itemId
-      const link = story.url || discussion
+      const discussion = 'https://news.ycombinator.com/item?id=' + itemId;
+      const link = story.url || discussion;
       setItem(id, { 
         id: itemId as string,
         item: { 
@@ -74,7 +74,7 @@ const appendStories = ({ self, id, feed, concatFeed, setItem }: FeedProps, story
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const metadata = getMetadata(doc, story.url);
-        const icon = metadata.icon || 'https://news.ycombinator.com/favicon.ico'
+        const icon = metadata.icon || 'https://news.ycombinator.com/favicon.ico';
         setItem(id, { 
           id: itemId as string,
           item: { content: metadata.description, image: metadata.image, badge: icon }

@@ -15,6 +15,8 @@ export type TOGGLE_OPTIONS = typeof TOGGLE_OPTIONS;
 
 export const MIN_COLUMN_WIDTH = 350;
 
+export type Validator = (id: string, key: string, value: any, options: Options) => any;
+
 export interface Options extends Immutable.Map<string, any> {
   show: boolean;
   type: string;
@@ -22,8 +24,6 @@ export interface Options extends Immutable.Map<string, any> {
   query: string;
   validator: Validator;
 }
-
-export type Validator = (key: string, value: any, options: Options) => any;
 
 export interface OptionsUpdate {
   show?: boolean;
@@ -74,7 +74,7 @@ const updateOptionsState = (id: string, state: State, update: OptionsUpdate): St
   const options = state.get(id);
   return state.withMutations((newState) => {
     Object.entries(update).forEach(([key, value]) => {
-      value = options.validator ? options.validator(key, value, options) : value;
+      value = options.validator ? options.validator(id, key, value, options) : value;
       newState.setIn([id, key], value);
     });
   });

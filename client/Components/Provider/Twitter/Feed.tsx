@@ -3,7 +3,6 @@ import './Feed.css';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
-//import { TweetStream } from 'scrape-twitter';
 
 import * as Config from '../../../Reducers/Config';
 import * as Twitter from '../../../Reducers/Provider/Twitter';
@@ -28,10 +27,9 @@ export interface FeedProps {
   handleRefresh(): (props: FeedProps) => void;
 }
 
-const appendFeed = (props: FeedProps) => {
-
-  console.log('Append feed');
-}
+const appendFeed = (props: FeedProps) => {  
+  console.log('Append feed');    
+};
 
 const ConnectedFeed = statelessComponent<FeedProps>(
   {
@@ -67,9 +65,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
 )(({ id, feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh }) => {
   const items = () => {
     if (feed.status === 'loading') {
-      return (
-        <div>Loading...</div>
-      );
+      return options.query ? <div>Loading...</div> : <div>Enter search query.</div>;
     }
     // https://github.com/facebook/immutable-js/issues/1430
     const nodes: Array<React.ReactNode> = [];
