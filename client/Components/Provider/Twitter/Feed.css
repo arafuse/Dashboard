@@ -1,0 +1,11 @@
+.twitter-feed {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  height: calc(100vh - 28px);
+}
+
+.twitter-feed__menu i {
+  float: right;
+  margin: 5px;
+}

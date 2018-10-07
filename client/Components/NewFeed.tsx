@@ -12,6 +12,7 @@ import * as rssIcon from './Provider/RSS/Icon.svg';
 import * as App from '../Reducers/App';
 import * as Twitch from '../Reducers/Provider/Twitch';
 import * as HackerNews from '../Reducers/Provider/HackerNews';
+import * as Twitter from '../Reducers/Provider/Twitter';
 import * as Config from '../Reducers/Config';
 import { statelessComponent } from './HOC/Stateless';
 import { Modal, ModalProps } from './Modal';
@@ -33,9 +34,9 @@ export const ConnectedNewFeed = statelessComponent<NewFeedProps>(
         <Modal {...{ show } as ModalProps}>
           <div className='feedChooser__icons'>
             <img className='feedChooser__icon' src={twitchIcon} onClick={handleAddFeed('twitch')} />
-            <img className='feedChooser__icon' src={twitterIcon}/>
+            <img className='feedChooser__icon' src={twitterIcon} onClick={handleAddFeed('twitter')} />
             <img className='feedChooser__icon' src={hnIcon} onClick={handleAddFeed('hn')} />
-            <img className='feedChooser__icon' src={rssIcon}/>
+            <img className='feedChooser__icon' src={rssIcon} />
           </div>
         </Modal>
       </div>
@@ -48,11 +49,15 @@ const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
     switch (type) {
       case 'twitch':
         dispatch(Twitch.addFeed(id));
-        dispatch(Config.addOptions(id, {type, validator: Twitch.configValidator}));
+        dispatch(Config.addOptions(id, { type, validator: Twitch.configValidator }));
+        break;
+      case 'twitter':
+        dispatch(Twitter.newFeed(id));
+        dispatch(Config.addOptions(id, { type, validator: Twitter.configValidator }));
         break;
       case 'hn':
         dispatch(HackerNews.addFeed(id));
-        dispatch(Config.addOptions(id, {type, validator: HackerNews.configValidator}));
+        dispatch(Config.addOptions(id, { type, validator: HackerNews.configValidator }));
         break;
       default:
         throw ('Got invalid feed type:' + type);

@@ -6,6 +6,7 @@ import * as App from '../Reducers/App'
 import * as Config from '../Reducers/Config';
 import * as Twitch from '../Reducers/Provider/Twitch';
 import * as HackerNews from '../Reducers/Provider/HackerNews';
+import * as Twitter from '../Reducers/Provider/Twitter';
 
 export type State = Immutable.Map<string, any>;
 
@@ -36,5 +37,6 @@ export const store = createStore(combineReducers({
   app: App.reducer,
   config: Config.reducer,
   twitch: Twitch.reducer,
-  hn: HackerNews.reducer
+  hn: HackerNews.reducer,
+  twitter: Twitter.reducer
 }));
