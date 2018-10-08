@@ -1,24 +1,31 @@
-# README
+# Dashboard
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is a simple dashboard app as a demo for React, Redux and TypeScript running on a Rails backend using Webpacker.
+It currently supports adding Twitch, Twitter and HackerNews feeds with a couple of options for each feed (width,
+Twitter search query and Twitch feed source).
 
-Things you may want to cover:
+## Running locally
 
-* Ruby version
+The app can be launched in development mode locally use foreman:
 
-* System dependencies
+```bash
+foreman start -f Procfile.dev -p 3000
+```
 
-* Configuration
+## Docker
 
-* Database creation
+A production Docker image can be build for running locally or deployment to a cloud hosting service:
 
-* Database initialization
+```bash
+docker build .
+docker run -d -p 8080:8080 <id> 
+```
 
-* How to run the test suite
+## Configuration
 
-* Services (job queues, cache servers, search engines, etc.)
+To use the Twitch feed functionality you'll need to obtain a [Twitch client ID](https://dev.twitch.tv/dashboard)
+and add it to `config/secrets.yml`:
 
-* Deployment instructions
-
-* ...
+```yaml
+twitch_client_id: "your_client_id"
+```
