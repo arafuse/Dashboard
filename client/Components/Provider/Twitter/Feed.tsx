@@ -47,12 +47,17 @@ const appendTweets = ({ id, feed, concatFeed }: FeedProps) => {
   const length = feed.items.size;
   const stream = feed.stream;
   const items = Immutable.OrderedMap<string, Twitter.Item>().withMutations((newItems) => {
-    stream.slice(length, length + ITEMS_PER_PAGE).forEach((tweet: any) =>
-      newItems.set(uuidv4(), {
+    stream.slice(length, length + ITEMS_PER_PAGE).forEach((tweet: any) => {
+      const userLink = 'https://twitter.com/' + tweet.screenName;
+      return newItems.set(uuidv4(), {
         ...Twitter.emptyItem,
         user: tweet.screenName,
-        content: tweet.text
-      }));
+        userLink: userLink,
+        content: tweet.text,
+        image: tweet.images.length ? tweet.images[0] : '',
+        link: tweet.urls.length ? tweet.urls[0].url : userLink
+      });
+    });
   });
   concatFeed(id, { status: 'loaded', items, stream });
 };

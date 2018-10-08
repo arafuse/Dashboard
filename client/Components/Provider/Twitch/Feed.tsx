@@ -12,6 +12,7 @@ import { Item, ItemProps } from './Item';
 
 const ITEMS_PER_PAGE = 10;
 const FEATURED_URL = `https://api.twitch.tv/kraken/streams/featured?limit=${ITEMS_PER_PAGE}&client_id=`;
+//const STREAMS_URL = `https://api.twitch.tv/kraken/streams/?limit=${ITEMS_PER_PAGE}&client_id=`;
 
 export interface FeedProps {
   id: string;

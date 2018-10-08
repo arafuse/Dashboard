@@ -8,20 +8,21 @@ import { statelessComponent } from '../../HOC/Stateless';
 import { Modal, ModalProps } from '../../Modal';
 import { FeedProps } from './Feed';
 
-export const AUTO_UPDATE_MILLIS = 500;
+export const AUTO_UPDATE_MILLIS = 1000;
 
 export interface OptionsProps {
   id: string;  
   options: Config.Options;
   setFeed(id: string, feed: Twitter.FeedParams): void;
   concatFeed(id: string, feed: Twitter.FeedParams): void;
-  setOptions: (id: string, options: Config.OptionsUpdate) => void;
+  toggleOptions(id: string): void;
+  setOptions: (id: string, options: Config.OptionsUpdate) => void;  
   handleFormChange: () => () => (event: React.FormEvent<HTMLFormElement>) => void;
   appendFeed(props: FeedProps): void;
 }
 
 export const ConnectedOptions = statelessComponent<OptionsProps>({
-  handleFormChange: () => ({ id, options, setFeed, concatFeed, appendFeed, setOptions }: OptionsProps) => {
+  handleFormChange: () => ({ id, options, toggleOptions, setFeed, concatFeed, appendFeed, setOptions }: OptionsProps) => {
     let start = Date.now();
     return (event: HTMLElementEvent<HTMLFormElement | HTMLInputElement>) => {
       event.persist();
@@ -37,6 +38,7 @@ export const ConnectedOptions = statelessComponent<OptionsProps>({
                 setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
                 const props = { id, options: { ...options, query: newQuery }, concatFeed } as FeedProps;
                 appendFeed({ ...props, feed: { ...Twitter.emptyFeed, status: 'loading' } } as FeedProps);
+                toggleOptions(id);
               }
           }
         }
@@ -58,7 +60,8 @@ export const ConnectedOptions = statelessComponent<OptionsProps>({
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
   setFeed: (id: string, feed: Twitter.FeedParams) => dispatch(Twitter.setFeed(id, feed)),
   concatFeed: (id: string, feed: Twitter.FeedParams) => dispatch(Twitter.concatFeed(id, feed)),
-  setOptions: (id: string, options: Config.OptionsUpdate) => dispatch(Config.setOptions(id, options))
+  setOptions: (id: string, options: Config.OptionsUpdate) => dispatch(Config.setOptions(id, options)),
+  toggleOptions: (id: string) => dispatch(Config.toggleOptions(id))
 });
 
 export const Options = connect(undefined, mapDispatchToProps)(ConnectedOptions);

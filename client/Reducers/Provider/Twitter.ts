@@ -22,6 +22,7 @@ export const MIN_COLUMN_WIDTH = 350;
 
 export interface ItemParams {
   user?: string;
+  userLink?: string;
   badge?: string;
   content?: string;
   image?: string;
@@ -30,6 +31,7 @@ export interface ItemParams {
 
 export interface Item {
   user: string;
+  userLink: string;
   badge: string;
   content: string;
   image: string;
@@ -38,6 +40,7 @@ export interface Item {
 
 export const emptyItem = {
   user: '',
+  userLink: '',
   badge: '',
   content: '',
   image: '',

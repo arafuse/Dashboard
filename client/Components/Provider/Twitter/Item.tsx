@@ -19,11 +19,13 @@ export const Item = statelessComponent<ItemProps>({
     <div className='hn-item' >
       <div className='hn-item__header'>
         <div className='hn-item__badge'>
-          <img src={item.badge} onError={handleBadgeError} />
+          <a href={item.link} target='_blank'>
+            <img src={item.badge} onError={handleBadgeError} />
+          </a>
         </div>
         <div className='hn-item__info'>
           <div className='hn-item__user'>
-            <a href={item.link} target='_blank'>@{item.user}</a>
+            <a href={item.userLink} target='_blank'>@{item.user}</a>
           </div>
         </div>
       </div>
