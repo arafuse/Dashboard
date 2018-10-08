@@ -13,7 +13,7 @@ import { Options, OptionsProps } from './Options';
 
 const ITEMS_PER_PAGE = 10;
 const FEATURED_URL = `https://api.twitch.tv/kraken/streams/featured?limit=${ITEMS_PER_PAGE}&client_id=`;
-//const STREAMS_URL = `https://api.twitch.tv/kraken/streams/?limit=${ITEMS_PER_PAGE}&client_id=`;
+const STREAMS_URL = `https://api.twitch.tv/kraken/streams/?limit=${ITEMS_PER_PAGE}&client_id=`;
 
 export interface FeedProps {
   id: string;
@@ -30,41 +30,47 @@ export interface FeedProps {
   handleRefresh(props: FeedProps): () => void;
 }
 
-const appendFeed = ({ id, feed, concatFeed, setFeed }: FeedProps) => {
-  const url = feed.next ? feed.next + '&client_id=' : FEATURED_URL;
+const appendFeed = ({ id, feed, options, concatFeed, setFeed }: FeedProps) => {
+  const startUrl = options.source === 'featured' ? FEATURED_URL : STREAMS_URL;
+  const url = feed.next ? feed.next + '&client_id=' : startUrl;
   const urlEncoded = encodeURIComponent(Buffer.from(url).toString('base64'));
-  fetch('/twitch/sign/' + urlEncoded)
-    .then(response => {
-      return response.json();
-    })
-    .then(data => {
-      if (!data.featured) {
-        return;
-      }
-      const items = data.featured.map((featured: any) => {
-        return {
-          title: featured.title,
-          badge: featured.stream.channel.logo,
-          channel: featured.stream.channel.display_name,
-          content: Utils.textFromHTML(featured.text),
-          image: featured.stream.preview.large,
-          link: featured.stream.channel.url,
-        };
-      });
-      concatFeed(id, { status: 'loaded', next: data._links.next, items: items });
-    })
-    .catch(error => {
-      console.error(error);
-      setFeed(id, { ...feed, status: 'error', error: error });
-    });
+  console.log(feed);
+  fetch('/twitch/sign/' + urlEncoded).then(response => response.json()).then(data => {
+    let items;
+    if (options.source === 'featured') {
+      if (!data.featured) return;
+      items = data.featured.map((featured: any) => ({
+        title: featured.title,
+        badge: featured.stream.channel.logo,
+        channel: featured.stream.channel.display_name,
+        content: Utils.textFromHTML(featured.text),
+        image: featured.stream.preview.large,
+        link: featured.stream.channel.url
+      }));
+    } else {
+      if (!data.streams) return;
+      items = data.streams.map((stream: any) => ({
+        title: '',
+        badge: stream.channel.logo,
+        channel: stream.channel.display_name,
+        content: '',
+        image: stream.preview.large,
+        link: stream.channel.url
+      }));
+    }
+    concatFeed(id, { status: 'loaded', next: data._links.next, items: items });
+  }).catch(error => {
+    console.error(error);
+    setFeed(id, { ...feed, status: 'error', error: error });
+  });
 };
 
 const ConnectedFeed = statelessComponent<FeedProps>(
   {
-    setScrollHandler: (node: HTMLElement) => (props: FeedProps) => {
+    setScrollHandler: (node: HTMLElement) => ({ self }: FeedProps) => {
       node && node.addEventListener('scroll', () => {
         const contentHeight = node.scrollHeight - node.offsetHeight;
-        if (contentHeight <= node.scrollTop) appendFeed(props);
+        if (contentHeight <= node.scrollTop) appendFeed(self.props);
       });
     },
 
@@ -84,12 +90,13 @@ const ConnectedFeed = statelessComponent<FeedProps>(
   },
   {
     componentDidMount: (props: FeedProps) => () => {
-      props.setFeed(props.id, { ...Twitch.emptyFeed, status: 'loading' });
-      appendFeed(props);
+      const { id, setFeed } = props;
+      setFeed(id, { ...Twitch.emptyFeed, status: 'loading' });
+      appendFeed({ ...props, feed: { ...props.feed, status: 'loading' } });
     }
   }
 )((props) => {
-  const { feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh } = props;    
+  const { feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh } = props;
   const items = () => {
     if (feed.status === 'loading') {
       return (
@@ -119,10 +126,7 @@ const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
   toggleOptions: (id: string) => dispatch(Config.toggleOptions(id)),
   setFeed: (id: string, feed: Twitch.Feed) => dispatch(Twitch.setFeed(id, feed)),
   concatFeed: (id: string, feed: Twitch.Feed) => dispatch(Twitch.concatFeed(id, feed)),
-  deleteFeed: (id: string) => {
-    dispatch(Twitch.deleteFeed(id));
-    dispatch(Config.deleteOptions(id));
-  }
+  deleteFeed: (id: string) => { dispatch(Twitch.deleteFeed(id)); dispatch(Config.deleteOptions(id)); }
 });
 
 export const Feed = connect(undefined, mapDispatchToProps)(ConnectedFeed);
