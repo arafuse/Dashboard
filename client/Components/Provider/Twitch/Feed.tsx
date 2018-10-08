@@ -81,7 +81,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
     },
   },
   {
-    componentDidMount: (props: FeedProps) => {
+    componentDidMount: (props: FeedProps) => () => {
       props.setFeed(props.id, { ...Twitch.emptyFeed, status: 'loading' });
       appendFeed(props);
     }

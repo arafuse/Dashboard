@@ -1,13 +1,5 @@
 import * as React from 'react';
 
-const lifeCycleMethodNames = [
-  'componentDidMount', 
-  'componentWillUnmount',
-  'shouldComponentUpdate',
-  'componentDidUpdate',
-  'componentDidCatch',
-];
-
 export const statelessComponent = <P extends any>(
   propHandlers?: { [index: string]: Function },
   lifeCycleHooks?: { [index: string]: Function }
@@ -25,9 +17,9 @@ export const statelessComponent = <P extends any>(
 
     getPropHandlers(propHandlers: { [index: string]: Function }) {
       const preparedHandlers: { [index: string]: Function } = {};
-      Object.keys(propHandlers).forEach(key => {
-        const handler = propHandlers[key];
-        preparedHandlers[key] = (...args: Array<any>) => {
+      Object.keys(propHandlers).forEach(functionName => {
+        const handler = propHandlers[functionName];
+        preparedHandlers[functionName] = (...args: Array<any>) => {
           const result = handler(...args);
           if (typeof result === 'function') {
             return result(Object.assign({}, { self: this }, this.props, this.propHandlers));
@@ -41,14 +33,10 @@ export const statelessComponent = <P extends any>(
 
     setLifeCycleHooks(lifeCycleHooks: { [index: string]: Function }) {
       Object.keys(lifeCycleHooks).forEach((functionName) => {
-        if (lifeCycleMethodNames.includes(functionName)) {
-          this[functionName] = () => {
-            lifeCycleHooks[functionName](Object.assign({}, { self: this }, this.props, this.propHandlers));
-          };
-        }
-        else if (functionName !== 'initialize') {
-          this[functionName] = lifeCycleHooks[functionName];
-        }
+        if (functionName !== 'initialize') { 
+          const hook = lifeCycleHooks[functionName];
+          this[functionName] = hook(Object.assign({}, { self: this }, this.props, this.propHandlers));             
+        }   
       });
       if (lifeCycleHooks.initialize) {
         lifeCycleHooks.initialize(Object.assign({}, { self: this }, this.props, this.propHandlers));

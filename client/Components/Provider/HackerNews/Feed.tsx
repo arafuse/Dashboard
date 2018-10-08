@@ -107,7 +107,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
     },
   },
   {
-    componentDidMount: (props: FeedProps) => {
+    componentDidMount: (props: FeedProps) => () => {
       const { setFeed } = props;
       setFeed(props.id, { ...HackerNews.emptyFeed, status: 'loading' });
       appendFeed(props);

@@ -49,8 +49,9 @@ const appendTweets = ({ id, feed, concatFeed }: FeedProps) => {
   const stream = feed.stream;
   const items = Immutable.OrderedMap<string, Twitter.Item>().withMutations((newItems) => {
     stream.slice(length, length + ITEMS_PER_PAGE).forEach((tweet: any) =>
-      newItems.set(uuidv4(), {...Twitter.emptyItem,
-        user: tweet.screenName, 
+      newItems.set(uuidv4(), {
+        ...Twitter.emptyItem,
+        user: tweet.screenName,
         content: tweet.text
       }));
   });
@@ -81,17 +82,10 @@ const ConnectedFeed = statelessComponent<FeedProps>(
     },
   },
   {
-    componentDidMount: (props: FeedProps) => {
+    componentDidMount: (props: FeedProps) => () => {
       const { id, setFeed, toggleOptions } = props;
       setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
       toggleOptions(id);
-    },
-    componentDidUpdate: (props: FeedProps) => {
-      const { self, id, feed, setFeed } = props;
-      console.log(self.props.feed.refresh);
-      if (feed.refresh) {
-        setFeed(id, {refresh: false});
-      }
     },
   }
 )((props) => {
@@ -102,13 +96,11 @@ const ConnectedFeed = statelessComponent<FeedProps>(
     }
     // https://github.com/facebook/immutable-js/issues/1430
     const nodes: Array<React.ReactNode> = [];
-    feed.items.map((item, id) =>
-      nodes.push(
-        <div key={id}>
-          <Item {...{ item } as ItemProps} />
-        </div>
-      )
-    );
+    feed.items.map((item, id) => nodes.push(
+      <div key={id}>
+        <Item {...{ item } as ItemProps} />
+      </div>
+    ));
     return nodes;
   };
   return (
