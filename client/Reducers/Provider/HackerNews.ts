@@ -71,7 +71,7 @@ export interface FeedParams {
 export const emptyFeed = {
   status: 'new',
   error: '',
-  items: Immutable.List<Item>(),
+  items: Immutable.OrderedMap<string, Item>(),
   storyIds: [],
 };
 

@@ -11,18 +11,18 @@ import { NewFeed, NewFeedProps } from './NewFeed';
 
 export interface ToolbarProps {
   app: App.State;
-  toggleNewFeed: () => void;
-  handleToggleNewFeed: () => void; 
+  toggleNewFeed(): void;
+  handleToggleNewFeed(): (props: ToolbarProps) => void;
 }
 
 const ConnectedToolbar = statelessComponent<ToolbarProps>({
   handleToggleNewFeed: () => ({ toggleNewFeed }: ToolbarProps) => {
     toggleNewFeed();
   },
-})(({ app, handleToggleNewFeed }) => (
+})((props) => (
   <div className='toolbar' >
-    <i className='icon fa fa-plus-square fa-lg' aria-hidden='true' onClick={handleToggleNewFeed}></i>
-    <NewFeed {... { show: app.showNewFeed } as NewFeedProps} />
+    <i className='icon fa fa-plus-square fa-lg' aria-hidden='true' onClick={props.handleToggleNewFeed}></i>
+    <NewFeed {... { show: props.app.showNewFeed } as NewFeedProps} />
   </div>
 ));
 

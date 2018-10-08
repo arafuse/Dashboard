@@ -30,23 +30,24 @@ export interface FeedProps {
   setScrollHandler(): (node: HTMLDivElement) => void;
   handleDeleteFeed(): (props: FeedProps) => void;
   handleToggleOptions(): (props: FeedProps) => void;
-  handleRefresh(): (props: FeedProps) => void;
+  handleRefresh(props: FeedProps): () => () => void;
 }
 
 const appendFeed = (props: FeedProps) => {
   const { feed } = props;
   if (!feed.storyIds.length) {
-    fetch(NEW_STORIES_URL).then(response => response.json()).then(stories => {
-      appendStories(props, stories);
+    fetch(NEW_STORIES_URL).then(response => response.json()).then(storyIds => {
+      appendStories({ ...props, feed: { ...props.feed, storyIds } });
     });
   }
   else {
-    appendStories(props, feed.storyIds);
+    appendStories(props);
   }
 };
 
-const appendStories = ({ self, id, concatFeed, setItem }: FeedProps, storyIds: Array<string>) => {
-  const length = self.props.feed.items.size;
+const appendStories = ({ id, feed, concatFeed, setItem }: FeedProps) => {
+  const length = feed.items.size;
+  const storyIds = feed.storyIds;
   const items = Immutable.OrderedMap<string, HackerNews.Item>().withMutations((newItems) => {
     storyIds.slice(length, length + ITEMS_PER_PAGE).forEach((storyId: string) =>
       newItems.set(storyId, { ...HackerNews.emptyItem }));
@@ -84,10 +85,10 @@ const appendStories = ({ self, id, concatFeed, setItem }: FeedProps, storyIds: A
 
 const ConnectedFeed = statelessComponent<FeedProps>(
   {
-    setScrollHandler: (node: HTMLElement) => (props: FeedProps) => {
+    setScrollHandler: (node: HTMLElement) => ({ self }: FeedProps) => {
       node && node.addEventListener('scroll', () => {
         const contentHeight = node.scrollHeight - node.offsetHeight;
-        if (contentHeight <= node.scrollTop) appendFeed(props);
+        if (contentHeight <= node.scrollTop) appendFeed(self.props);
       });
     },
 
@@ -99,10 +100,10 @@ const ConnectedFeed = statelessComponent<FeedProps>(
       toggleOptions(id);
     },
 
-    handleRefresh: () => (props: FeedProps) => {
+    handleRefresh: (props: FeedProps) => () => () => {
       const { id, setFeed } = props;
-      setFeed(id, { status: 'loading', items: Immutable.OrderedMap(), storyIds: [] });
-      appendFeed(props);
+      setFeed(id, { ...HackerNews.emptyFeed, status: 'loading' });
+      appendFeed({ ...props, feed: { ...HackerNews.emptyFeed, status: 'loading' } } as FeedProps);
     },
   },
   {
@@ -111,7 +112,8 @@ const ConnectedFeed = statelessComponent<FeedProps>(
       appendFeed(props);
     }
   }
-)(({ feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh }) => {
+)((props) => {
+  const { feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh } = props;
   const items = () => {
     if (feed.status === 'loading') {
       return (
@@ -134,7 +136,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
       <div className='hn-feed__menu'>
         <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
         <i className='icon fa fa-cog fa-lg' onClick={handleToggleOptions}></i>
-        <i className='icon fa fa-refresh fa-lg' onClick={handleRefresh} ></i>
+        <i className='icon fa fa-refresh fa-lg' onClick={handleRefresh(props)} ></i>
       </div>
       {items()}
     </div>
