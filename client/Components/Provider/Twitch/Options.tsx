@@ -8,7 +8,7 @@ import { statelessComponent } from '../../HOC/Stateless';
 import { Modal, ModalProps } from '../../Modal';
 import { FeedProps } from './Feed';
 
-export const AUTO_UPDATE_MILLIS = 1000;
+export const AUTO_UPDATE_MILLIS = 100;
 
 export interface OptionsProps {
   feedProps: FeedProps;

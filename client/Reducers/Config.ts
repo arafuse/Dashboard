@@ -55,17 +55,17 @@ const initialState = Immutable.Map<string, any>();
 
 export const reducer = (state: State = initialState, action: StatefulAction) => {
   switch (action.type) {
-    case ADD_OPTIONS:      
+    case ADD_OPTIONS:
       const options = OptionsRecord(action.payload);
       return updateOptionsState(
-        action.id as string, 
+        action.id as string,
         state.set(action.id as string, OptionsRecord(action.payload)), options.toJS()
       );
-    case SET_OPTIONS:      
+    case SET_OPTIONS:
       return updateOptionsState(action.id as string, state, action.payload);
-    case DELETE_OPTIONS:      
+    case DELETE_OPTIONS:
       return state.delete(action.id as string);
-    case TOGGLE_OPTIONS:      
+    case TOGGLE_OPTIONS:
       return state.setIn([action.id, 'show'], !state.getIn([action.id, 'show']));
     default:
       return state;
@@ -75,7 +75,7 @@ export const reducer = (state: State = initialState, action: StatefulAction) => 
 const updateOptionsState = (id: string, state: State, update: OptionsUpdate): State => {
   const options = state.get(id);
   return state.withMutations((newState) => {
-    Object.entries(update).forEach(([key, value]) => {      
+    Object.entries(update).forEach(([key, value]) => {
       value = options.validator ? options.validator(key, value, options) : value;
       newState.setIn([id, key], value);
     });

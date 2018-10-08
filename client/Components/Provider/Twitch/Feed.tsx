@@ -34,7 +34,6 @@ const appendFeed = ({ id, feed, options, concatFeed, setFeed }: FeedProps) => {
   const startUrl = options.source === 'featured' ? FEATURED_URL : STREAMS_URL;
   const url = feed.next ? feed.next + '&client_id=' : startUrl;
   const urlEncoded = encodeURIComponent(Buffer.from(url).toString('base64'));
-  console.log(feed);
   fetch('/twitch/sign/' + urlEncoded).then(response => response.json()).then(data => {
     let items;
     if (options.source === 'featured') {
@@ -49,14 +48,17 @@ const appendFeed = ({ id, feed, options, concatFeed, setFeed }: FeedProps) => {
       }));
     } else {
       if (!data.streams) return;
-      items = data.streams.map((stream: any) => ({
-        title: '',
-        badge: stream.channel.logo,
-        channel: stream.channel.display_name,
-        content: '',
-        image: stream.preview.large,
-        link: stream.channel.url
-      }));
+      items = data.streams.map((stream: any) => {
+        const item = {
+          title: stream.channel.game,
+          badge: stream.channel.logo,
+          channel: stream.channel.display_name,
+          content: stream.channel.status,
+          image: stream.preview.large,
+          link: stream.channel.url
+        };
+        return item;
+      });
     }
     concatFeed(id, { status: 'loaded', next: data._links.next, items: items });
   }).catch(error => {
