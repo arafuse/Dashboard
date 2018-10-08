@@ -49,10 +49,10 @@ const appendTweets = ({ id, feed, concatFeed }: FeedProps) => {
   const stream = feed.stream;
   const items = Immutable.OrderedMap<string, Twitter.Item>().withMutations((newItems) => {
     stream.slice(length, length + ITEMS_PER_PAGE).forEach((tweet: any) =>
-      newItems.set(uuidv4(), Twitter.ItemRecord({
-        user: tweet.screenName,
+      newItems.set(uuidv4(), {...Twitter.emptyItem,
+        user: tweet.screenName, 
         content: tweet.text
-      }) as Twitter.Item));
+      }));
   });
   concatFeed(id, { status: 'loaded', items, stream });
 };
@@ -85,6 +85,13 @@ const ConnectedFeed = statelessComponent<FeedProps>(
       const { id, setFeed, toggleOptions } = props;
       setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
       toggleOptions(id);
+    },
+    componentDidUpdate: (props: FeedProps) => {
+      const { self, id, feed, setFeed } = props;
+      console.log(self.props.feed.refresh);
+      if (feed.refresh) {
+        setFeed(id, {refresh: false});
+      }
     },
   }
 )((props) => {

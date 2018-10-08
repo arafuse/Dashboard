@@ -37,7 +37,7 @@ export const ConnectedOptions = statelessComponent<OptionsProps>({
     <Modal {...{ show: options.show } as ModalProps}>
       <div className='options__buttons'>
         <form onChange={handleFormChange()}>
-          <label>Query </label><input type='text' name='query' />
+          <label>Query </label><input type='text' name='query' defaultValue={options.query} />
         </form>
       </div>
     </Modal>

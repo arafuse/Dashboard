@@ -29,25 +29,21 @@ export interface ItemParams {
   link?: string;
 }
 
-export const ItemRecord = Immutable.Record({
+export interface Item {
+  user: string;
+  badge: string;
+  content: string;
+  image: string;
+  link: string;
+}
+
+export const emptyItem = {
   user: '',
   badge: '',
   content: '',
   image: '',
   link: ''
-});
-
-export class Item extends ItemRecord {
-  user: string | undefined;
-  badge: string | undefined;
-  content: string | undefined;
-  image: string | undefined;
-  link: string | undefined;
-
-  constructor(params: ItemParams) {
-    params ? super(params) : super();
-  }
-}
+};
 
 export interface SetItemParams {
   id: string;
@@ -59,6 +55,7 @@ export interface Feed {
   error: string;
   items: Immutable.OrderedMap<string, Item>;
   stream: Array<any>;
+  refresh: boolean;
 }
 
 export interface FeedParams {
@@ -66,6 +63,7 @@ export interface FeedParams {
   error?: string;
   items?: Immutable.OrderedMap<string, Item>;
   stream?: Array<any>;
+  refresh?: boolean;
 }
 
 export type State = Immutable.Map<string, any>;
@@ -74,10 +72,9 @@ export const emptyFeed = {
   status: 'new',
   error: '',
   items: Immutable.OrderedMap<string, Item>(),
-  stream: [],  
+  stream: [],
+  refresh: false
 };
-
-export const FeedRecord = Immutable.Record(emptyFeed, 'Feed');
 
 export const newFeed = (id: string) => ({ type: NEW_FEED, id: id });
 export const deleteFeed = (id: string) => ({ type: DELETE_FEED, id: id });
@@ -90,7 +87,7 @@ const initialState = Immutable.Map<string, any>();
 export const reducer = (state: State = initialState, action: StatefulAction) => {
   switch (action.type) {
     case NEW_FEED:
-      return state.set(action.id as string, FeedRecord());
+      return state.set(action.id as string, { ...emptyFeed });
     case DELETE_FEED:
       return state.delete(action.id as string);
     case SET_FEED:
@@ -98,7 +95,7 @@ export const reducer = (state: State = initialState, action: StatefulAction) => 
       return updateFeedState(action.id as string, state, action.payload);
     case CONCAT_FEED:
       action.payload.error && console.error(action.payload.error);
-      const items = state.getIn([action.id, 'items']).concat(action.payload.items);
+      const items = state.get(action.id as string).items.concat(action.payload.items);
       return updateFeedState(action.id as string, state, { ...action.payload, items });
     case SET_ITEM:
       action.payload.error && console.error(action.payload.error);
@@ -109,31 +106,28 @@ export const reducer = (state: State = initialState, action: StatefulAction) => 
 };
 
 const updateFeedState = (id: string, state: State, params: FeedParams): State => {
-  return state.withMutations((newState) => {
-    Object.entries(params).forEach(([key, value]) => newState.setIn([id, key], value));
-  });
+  return state.set(id, { ...state.get(id), ...params });
 };
 
 const updateItemState = (id: string, state: State, params: SetItemParams): State => {
-  return state.withMutations((newState) => {
-    Object.entries(params.item).forEach(([key, value]) => newState.setIn([id, 'items', params.id, key], value));
-  });
+  const items = state.get(id).items;
+  const newItems = items.set(params.id, { ...items.get(params.id), ...params.item });
+  return state.set(id, { ...state.get(id), items: newItems });
 };
 
-
- /**
- * Validates Twitter config options. This function is called once for each key, value pair being updated
- * before options are set. 
- * 
- * Enforces limits on minimum column width and query length. When the query changes, the feed stream is 
- * reset to null to allow for it to be refreshed with the new query.
- * 
- * @param {string} id The ID of the current feed.
- * @param {string} key The options key being validated.
- * @param {*} value The options value being validated.
- * @param {Config.Options} options The existing config options for the current feed.
- * @returns {*} The resulting config value.
- */
+/**
+* Validates Twitter config options. This function is called once for each key, value pair being updated
+* before options are set. 
+* 
+* Enforces limits on minimum column width and query length. When the query changes, the feed stream is 
+* reset to null to allow for it to be refreshed with the new query.
+* 
+* @param {string} id The ID of the current feed.
+* @param {string} key The options key being validated.
+* @param {*} value The options value being validated.
+* @param {Config.Options} options The existing config options for the current feed.
+* @returns {*} The resulting config value.
+*/
 export const configValidator = (id: string, key: string, value: any, options: Config.Options): any => {
   switch (key) {
     case 'width':
@@ -141,7 +135,9 @@ export const configValidator = (id: string, key: string, value: any, options: Co
       else if (value < MIN_COLUMN_WIDTH) return MIN_COLUMN_WIDTH;
     case 'query':
       if (value.length < MIN_QUERY_LENGTH) return options.get('query');
-      if (options.get('query') !== value) setFeed(id, {stream: []});
+      if (options.get('query') !== value) {
+        setFeed(id, { stream: [], refresh: true });
+      }
   }
   return value;
 };
