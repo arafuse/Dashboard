@@ -19,7 +19,6 @@ export const SET_ITEM = 'TWITTER_SET_ITEM';
 export type SET_ITEM = typeof SET_ITEM;
 
 export const MIN_COLUMN_WIDTH = 350;
-export const MIN_QUERY_LENGTH = 3;
 
 export interface ItemParams {
   user?: string;
@@ -117,8 +116,6 @@ export const configValidator = (key: string, value: any, options: Config.Options
     case 'width':
       if (isNaN(value)) return options.get('width');
       else if (value < MIN_COLUMN_WIDTH) return MIN_COLUMN_WIDTH;
-    case 'query':
-      if (value.length < MIN_QUERY_LENGTH) return options.get('query');
   }
   return value;
 };
