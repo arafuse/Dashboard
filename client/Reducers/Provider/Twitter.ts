@@ -55,7 +55,6 @@ export interface Feed {
   error: string;
   items: Immutable.OrderedMap<string, Item>;
   stream: Array<any>;
-  refresh: boolean;
 }
 
 export interface FeedParams {
@@ -63,7 +62,6 @@ export interface FeedParams {
   error?: string;
   items?: Immutable.OrderedMap<string, Item>;
   stream?: Array<any>;
-  refresh?: boolean;
 }
 
 export type State = Immutable.Map<string, any>;
@@ -73,7 +71,6 @@ export const emptyFeed = {
   error: '',
   items: Immutable.OrderedMap<string, Item>(),
   stream: [],
-  refresh: false
 };
 
 export const newFeed = (id: string) => ({ type: NEW_FEED, id: id });
@@ -135,9 +132,6 @@ export const configValidator = (id: string, key: string, value: any, options: Co
       else if (value < MIN_COLUMN_WIDTH) return MIN_COLUMN_WIDTH;
     case 'query':
       if (value.length < MIN_QUERY_LENGTH) return options.get('query');
-      if (options.get('query') !== value) {
-        setFeed(id, { stream: [], refresh: true });
-      }
   }
   return value;
 };

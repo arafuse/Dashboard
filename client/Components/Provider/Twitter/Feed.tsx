@@ -32,7 +32,6 @@ export interface FeedProps {
 }
 
 const appendFeed = (props: FeedProps) => {
-
   const { feed, options } = props;
   if (!feed.stream.length && options.query) {
     const queryEncoded = Buffer.from(options.query).toString('base64');
@@ -105,7 +104,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
   };
   return (
     <div ref={setScrollHandler} className='twitter-feed' style={{ width: options.width }} >
-      <Options {...{ id, options } as OptionsProps} />
+      <Options {...{ id, feed, options, appendFeed } as OptionsProps} />
       <div className='twitter-feed__menu'>
         <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
         <i className='icon fa fa-cog fa-lg' onClick={handleToggleOptions}></i>

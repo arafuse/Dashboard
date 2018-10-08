@@ -6,19 +6,23 @@ import * as Config from '../../../Reducers/Config';
 import * as Twitter from '../../../Reducers/Provider/Twitter';
 import { statelessComponent } from '../../HOC/Stateless';
 import { Modal, ModalProps } from '../../Modal';
+import { FeedProps } from './Feed';
 
 export const AUTO_UPDATE_MILLIS = 500;
 
 export interface OptionsProps {
   id: string;
+  feed: Twitter.Feed;
   options: Config.Options;
   setFeed(id: string, feed: Twitter.FeedParams): void;
-  setOptions: (id: string, options: Config.OptionsUpdate) => void;  
+  concatFeed(id: string, feed: Twitter.FeedParams): void;
+  setOptions: (id: string, options: Config.OptionsUpdate) => void;
   handleFormChange: () => () => (event: React.FormEvent<HTMLFormElement>) => void;
+  appendFeed(props: FeedProps): void;
 }
 
 export const ConnectedOptions = statelessComponent<OptionsProps>({
-  handleFormChange: () => ({ id, setFeed, setOptions }: OptionsProps) => {
+  handleFormChange: () => ({ id, feed, options, setFeed, concatFeed, appendFeed, setOptions }: OptionsProps) => {
     let start = Date.now();
     return (event: HTMLElementEvent<HTMLFormElement | HTMLInputElement>) => {
       event.persist();
@@ -28,8 +32,13 @@ export const ConnectedOptions = statelessComponent<OptionsProps>({
         if (Date.now() - start >= AUTO_UPDATE_MILLIS) {
           switch (event.target.name) {
             case 'query':
-              setFeed(id, {refresh: true});
-              setOptions(id, { query: event.target.value });              
+              const newQuery = event.target.value;
+              if (options.query !== newQuery) {
+                setOptions(id, { query: newQuery });
+                setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
+                const props = { id, options: { ...options, query: newQuery }, concatFeed } as FeedProps;
+                appendFeed({ ...props, feed: { ...Twitter.emptyFeed, status: 'loading' } } as FeedProps);
+              }
           }
         }
       }, AUTO_UPDATE_MILLIS);
@@ -49,6 +58,7 @@ export const ConnectedOptions = statelessComponent<OptionsProps>({
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
   setFeed: (id: string, feed: Twitter.FeedParams) => dispatch(Twitter.setFeed(id, feed)),
+  concatFeed: (id: string, feed: Twitter.FeedParams) => dispatch(Twitter.concatFeed(id, feed)),
   setOptions: (id: string, options: Config.OptionsUpdate) => dispatch(Config.setOptions(id, options))
 });
 
