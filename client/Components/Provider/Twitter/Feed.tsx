@@ -62,8 +62,8 @@ const appendTweets = ({ id, feed, concatFeed, setItem }: FeedProps) => {
     });
   });
   concatFeed(id, { status: 'loaded', items, stream });
-  items.forEach((item, itemId) => {            
-    item && fetch(`/twitter/user/${item.user}`).then(response => response.json()).then(user => {            
+  items.forEach((item, itemId) => {
+    item && fetch(`/twitter/user/${item.user}`).then(response => response.json()).then(user => {
       console.log(user);
       setItem(id, {
         id: itemId as string,
@@ -107,7 +107,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
     },
   }
 )((props) => {
-  const { id, feed, options, setItem, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh } = props;
+  const { feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh } = props;
   const items = () => {
     if (feed.status === 'loading') {
       return options.query ? <div>Loading...</div> : <div>Enter search query.</div>;
@@ -123,7 +123,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
   };
   return (
     <div ref={setScrollHandler} className='twitter-feed' style={{ width: options.width }} >
-      <Options {...{ id, options, setItem, appendFeed } as OptionsProps} />
+      <Options {...{ appendFeed, feedProps: props } as OptionsProps} />
       <div className='twitter-feed__menu'>
         <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
         <i className='icon fa fa-cog fa-lg' onClick={handleToggleOptions}></i>
@@ -139,7 +139,7 @@ const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
   toggleOptions: (id: string) => dispatch(Config.toggleOptions(id)),
   setFeed: (id: string, feed: Twitter.FeedParams) => dispatch(Twitter.setFeed(id, feed)),
   concatFeed: (id: string, feed: Twitter.FeedParams) => dispatch(Twitter.concatFeed(id, feed)),
-  deleteFeed: (id: string) => { dispatch(Twitter.deleteFeed(id)); dispatch(Config.deleteOptions(id)); },  
+  deleteFeed: (id: string) => { dispatch(Twitter.deleteFeed(id)); dispatch(Config.deleteOptions(id)); },
 });
 
 export const Feed = connect(undefined, mapDispatchToProps)(ConnectedFeed);

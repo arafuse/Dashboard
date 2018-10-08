@@ -11,47 +11,43 @@ import { FeedProps } from './Feed';
 export const AUTO_UPDATE_MILLIS = 1000;
 
 export interface OptionsProps {
-  id: string;  
-  options: Config.Options;
-  setFeed(id: string, feed: Twitter.FeedParams): void;
-  concatFeed(id: string, feed: Twitter.FeedParams): void;
-  setItem(id: string, item: Twitter.SetItemParams): void;
-  toggleOptions(id: string): void;
-  setOptions: (id: string, options: Config.OptionsUpdate) => void;  
+  feedProps: FeedProps;
+  setOptions: (id: string, options: Config.OptionsUpdate) => void;
   handleFormChange: () => () => (event: React.FormEvent<HTMLFormElement>) => void;
   appendFeed(props: FeedProps): void;
 }
 
 export const ConnectedOptions = statelessComponent<OptionsProps>({
-  handleFormChange: () => ({ id, options, toggleOptions, setFeed, concatFeed, appendFeed, setItem, setOptions }: OptionsProps) => {
+  handleFormChange: () => ({ feedProps, appendFeed, setOptions }: OptionsProps) => {
+    const { id, setFeed, options, toggleOptions } = feedProps;
     let start = Date.now();
     return (event: HTMLElementEvent<HTMLFormElement | HTMLInputElement>) => {
       event.persist();
       event.preventDefault();
       start = Date.now();
       setTimeout(() => {
-        if (Date.now() - start >= AUTO_UPDATE_MILLIS) {
-          switch (event.target.name) {
-            case 'query':              
-              const newQuery = event.target.value;
-              if (options.query !== newQuery) {
-                setOptions(id, { query: newQuery });
-                setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
-                const props = { id, options: { ...options, query: newQuery }, concatFeed, setItem } as FeedProps;
-                appendFeed({ ...props, feed: { ...Twitter.emptyFeed, status: 'loading' } } as FeedProps);
-                toggleOptions(id);
-              }
+        if (Date.now() - start >= AUTO_UPDATE_MILLIS && event.target.name === 'query') {
+          const query = event.target.value;
+          if (options.query !== query) {
+            setOptions(id, { query: query });
+            setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
+            appendFeed({
+              ...feedProps,
+              options: { ...options, query: query },
+              feed: { ...Twitter.emptyFeed, status: 'loading' }
+            });
+            toggleOptions(id);
           }
         }
       }, AUTO_UPDATE_MILLIS);
     };
   }
-})(({ options, handleFormChange }) => (
+})(({ feedProps, handleFormChange }) => (
   <div>
-    <Modal {...{ show: options.show } as ModalProps}>
+    <Modal {...{ show: feedProps.options.show } as ModalProps}>
       <div className='options__buttons'>
         <form onChange={handleFormChange()}>
-          <label>Query </label><input type='text' name='query' defaultValue={options.query} />
+          <label>Query </label><input type='text' name='query' defaultValue={feedProps.options.query} />
         </form>
       </div>
     </Modal>
