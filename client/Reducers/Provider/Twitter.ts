@@ -112,19 +112,6 @@ const updateItemState = (id: string, state: State, params: SetItemParams): State
   return state.set(id, { ...state.get(id), items: newItems });
 };
 
-/**
-* Validates Twitter config options. This function is called once for each key, value pair being updated
-* before options are set. 
-* 
-* Enforces limits on minimum column width and query length. When the query changes, the feed stream is 
-* reset to null to allow for it to be refreshed with the new query.
-* 
-* @param {string} id The ID of the current feed.
-* @param {string} key The options key being validated.
-* @param {*} value The options value being validated.
-* @param {Config.Options} options The existing config options for the current feed.
-* @returns {*} The resulting config value.
-*/
 export const configValidator = (key: string, value: any, options: Config.Options): any => {
   switch (key) {
     case 'width':
