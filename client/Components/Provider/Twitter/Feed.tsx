@@ -13,7 +13,7 @@ import { statelessComponent } from '../../HOC/Stateless';
 import { Item, ItemProps } from './Item';
 
 const ITEMS_PER_PAGE = 10;
-const MAX_ITEMS= 100;
+const MAX_ITEMS = 100;
 
 export interface FeedProps {
   id: string;
@@ -28,41 +28,41 @@ export interface FeedProps {
   setScrollHandler(): (node: HTMLDivElement) => void;
   handleDeleteFeed(): (props: FeedProps) => void;
   handleToggleOptions(): (props: FeedProps) => void;
-  handleRefresh(): (props: FeedProps) => void;
+  handleRefresh(props: FeedProps): () => void;
 }
 
-const appendFeed = (props: FeedProps, stream: Array<any> | null) => {  
-  const {options} = props;  
-  if (!stream && options.query) {
+const appendFeed = (props: FeedProps) => {
+
+  const { feed, options } = props;
+  if (!feed.stream.length && options.query) {
     const queryEncoded = Buffer.from(options.query).toString('base64');
-    fetch(`/twitter/scrape/${queryEncoded}/${MAX_ITEMS}`).then(response => response.json()).then(newStream => {                  
-      appendTweets(props, newStream);      
+    fetch(`/twitter/scrape/${queryEncoded}/${MAX_ITEMS}`).then(response => response.json()).then(stream => {
+      appendTweets({ ...props, feed: { ...props.feed, stream } });
     });
-  } else {        
-    appendTweets(props, stream || []);
+  } else {
+    appendTweets(props);
   }
 };
 
-const appendTweets = ({id, feed, concatFeed}: FeedProps, stream: Array<any>) => {
-  const length = feed.items.size;  
-  const items = Immutable.OrderedMap<string, Twitter.Item>().withMutations((newItems) => {    
-    stream.slice(length, length + ITEMS_PER_PAGE).forEach((tweet: any) =>       
+const appendTweets = ({ id, feed, concatFeed }: FeedProps) => {
+  const length = feed.items.size;
+  const stream = feed.stream;
+  const items = Immutable.OrderedMap<string, Twitter.Item>().withMutations((newItems) => {
+    stream.slice(length, length + ITEMS_PER_PAGE).forEach((tweet: any) =>
       newItems.set(uuidv4(), Twitter.ItemRecord({
         user: tweet.screenName,
         content: tweet.text
       }) as Twitter.Item));
   });
-  concatFeed(id, { status: 'loaded', items, stream});
+  concatFeed(id, { status: 'loaded', items, stream });
 };
 
 const ConnectedFeed = statelessComponent<FeedProps>(
   {
-    setScrollHandler: (node: HTMLElement) => ({self}: FeedProps) => {
+    setScrollHandler: (node: HTMLElement) => ({ self }: FeedProps) => {
       node && node.addEventListener('scroll', () => {
         const contentHeight = node.scrollHeight - node.offsetHeight;
-        if (contentHeight <= node.scrollTop) {          
-          appendFeed(self.props, self.props.feed.stream);
-        }
+        if (contentHeight <= node.scrollTop) appendFeed(self.props);
       });
     },
 
@@ -74,20 +74,21 @@ const ConnectedFeed = statelessComponent<FeedProps>(
       toggleOptions(id);
     },
 
-    handleRefresh: () => ({self}: FeedProps) => {
-      const { id, setFeed } = self.props;
-      setFeed(id, { ...Twitter.emptyFeed, status: 'loading', stream: null});
-      appendFeed(self.props, null);
+    handleRefresh: (props: FeedProps) => () => () => {
+      const { id, setFeed } = props;
+      setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
+      appendFeed({ ...props, feed: { ...Twitter.emptyFeed, status: 'loading' } } as FeedProps);
     },
   },
   {
     componentDidMount: (props: FeedProps) => {
       const { id, setFeed, toggleOptions } = props;
       setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
-      toggleOptions(id);      
+      toggleOptions(id);
     },
   }
-)(({ id, feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh }) => {
+)((props) => {
+  const { id, feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh } = props;
   const items = () => {
     if (feed.status === 'loading') {
       return options.query ? <div>Loading...</div> : <div>Enter search query.</div>;
@@ -109,7 +110,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
       <div className='twitter-feed__menu'>
         <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
         <i className='icon fa fa-cog fa-lg' onClick={handleToggleOptions}></i>
-        <i className='icon fa fa-refresh fa-lg' onClick={handleRefresh} ></i>
+        <i className='icon fa fa-refresh fa-lg' onClick={handleRefresh(props)} ></i>
       </div>
       {items()}
     </div>

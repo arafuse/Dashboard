@@ -58,14 +58,14 @@ export interface Feed {
   status: string;
   error: string;
   items: Immutable.OrderedMap<string, Item>;
-  stream: Array<any> | null;
+  stream: Array<any>;
 }
 
 export interface FeedParams {
   status?: string;
   error?: string;
   items?: Immutable.OrderedMap<string, Item>;
-  stream?: Array<any> | null;
+  stream?: Array<any>;
 }
 
 export type State = Immutable.Map<string, any>;
@@ -74,7 +74,7 @@ export const emptyFeed = {
   status: 'new',
   error: '',
   items: Immutable.OrderedMap<string, Item>(),
-  stream: null,  
+  stream: [],  
 };
 
 export const FeedRecord = Immutable.Record(emptyFeed, 'Feed');
@@ -141,7 +141,7 @@ export const configValidator = (id: string, key: string, value: any, options: Co
       else if (value < MIN_COLUMN_WIDTH) return MIN_COLUMN_WIDTH;
     case 'query':
       if (value.length < MIN_QUERY_LENGTH) return options.get('query');
-      if (options.get('query') !== value) setFeed(id, {stream: null});
+      if (options.get('query') !== value) setFeed(id, {stream: []});
   }
   return value;
 };
