@@ -104,7 +104,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
   };
   return (
     <div ref={setScrollHandler} className='twitter-feed' style={{ width: options.width }} >
-      <Options {...{ id, feed, options, appendFeed } as OptionsProps} />
+      <Options {...{ id, options, appendFeed } as OptionsProps} />
       <div className='twitter-feed__menu'>
         <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
         <i className='icon fa fa-cog fa-lg' onClick={handleToggleOptions}></i>

@@ -125,7 +125,7 @@ const updateItemState = (id: string, state: State, params: SetItemParams): State
 * @param {Config.Options} options The existing config options for the current feed.
 * @returns {*} The resulting config value.
 */
-export const configValidator = (id: string, key: string, value: any, options: Config.Options): any => {
+export const configValidator = (key: string, value: any, options: Config.Options): any => {
   switch (key) {
     case 'width':
       if (isNaN(value)) return options.get('width');

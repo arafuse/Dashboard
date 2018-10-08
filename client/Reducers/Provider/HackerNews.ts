@@ -116,7 +116,7 @@ const updateItemState = (id: string, state: State, params: SetItemParams): State
   return state.set(id, { ...state.get(id), items: newItems });
 };
 
-export const configValidator = (_: string, key: string, value: any, options: Config.Options): any => {
+export const configValidator = (key: string, value: any, options: Config.Options): any => {
   if (key === 'width') {
     if (isNaN(value)) return options.get('width');
     else if (value < MIN_COLUMN_WIDTH) return MIN_COLUMN_WIDTH;

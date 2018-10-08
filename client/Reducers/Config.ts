@@ -74,7 +74,7 @@ const updateOptionsState = (id: string, state: State, update: OptionsUpdate): St
   const options = state.get(id);
   return state.withMutations((newState) => {
     Object.entries(update).forEach(([key, value]) => {
-      value = options.validator ? options.validator(id, key, value, options) : value;
+      value = options.validator ? options.validator(key, value, options) : value;
       newState.setIn([id, key], value);
     });
   });

@@ -11,8 +11,7 @@ import { FeedProps } from './Feed';
 export const AUTO_UPDATE_MILLIS = 500;
 
 export interface OptionsProps {
-  id: string;
-  feed: Twitter.Feed;
+  id: string;  
   options: Config.Options;
   setFeed(id: string, feed: Twitter.FeedParams): void;
   concatFeed(id: string, feed: Twitter.FeedParams): void;
@@ -22,7 +21,7 @@ export interface OptionsProps {
 }
 
 export const ConnectedOptions = statelessComponent<OptionsProps>({
-  handleFormChange: () => ({ id, feed, options, setFeed, concatFeed, appendFeed, setOptions }: OptionsProps) => {
+  handleFormChange: () => ({ id, options, setFeed, concatFeed, appendFeed, setOptions }: OptionsProps) => {
     let start = Date.now();
     return (event: HTMLElementEvent<HTMLFormElement | HTMLInputElement>) => {
       event.persist();
@@ -31,7 +30,7 @@ export const ConnectedOptions = statelessComponent<OptionsProps>({
       setTimeout(() => {
         if (Date.now() - start >= AUTO_UPDATE_MILLIS) {
           switch (event.target.name) {
-            case 'query':
+            case 'query':              
               const newQuery = event.target.value;
               if (options.query !== newQuery) {
                 setOptions(id, { query: newQuery });
