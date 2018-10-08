@@ -108,7 +108,8 @@ const ConnectedFeed = statelessComponent<FeedProps>(
   },
   {
     componentDidMount: (props: FeedProps) => {
-      props.setFeed(props.id, { status: 'loading', items: Immutable.OrderedMap(), storyIds: [] });
+      const { setFeed } = props;
+      setFeed(props.id, { ...HackerNews.emptyFeed, status: 'loading' });
       appendFeed(props);
     }
   }
