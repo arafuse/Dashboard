@@ -16,6 +16,12 @@ export const DELETE_FEED = 'DELETE_FEED';
 export type DELETE_FEED = typeof DELETE_FEED;
 
 export const MIN_COLUMN_WIDTH = 350;
+export const DEFAULT_SOURCE = 'featured';
+
+export const validSources = {
+  streams: 'All Streams',
+  featured: 'Featured'
+};
 
 export interface Item {
   title: string;
@@ -79,9 +85,14 @@ const updateFeedState = (id: string, state: State, params: FeedParams): State =>
 };
 
 export const configValidator = (key: string, value: any, options: Config.Options): any => {
-  if (key === 'width') {
-    if (isNaN(value)) return options.get('width');
-    else if (value < MIN_COLUMN_WIDTH) return MIN_COLUMN_WIDTH;
+  switch (key) {
+    case 'width':
+      if (isNaN(value)) return options.get('width');
+      else if (value < MIN_COLUMN_WIDTH) return MIN_COLUMN_WIDTH;
+      return value;
+    case 'source':
+      if (!Object.keys(validSources).includes(value)) return options.get('source');
+    default:
+      return value;
   }
-  return value;
 };

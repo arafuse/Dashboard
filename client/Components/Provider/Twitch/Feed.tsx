@@ -4,11 +4,12 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
 
-import * as Twitch from '../../../Reducers/Provider/Twitch';
 import * as Config from '../../../Reducers/Config';
+import * as Twitch from '../../../Reducers/Provider/Twitch';
 import * as Utils from '../../../Utils';
 import { statelessComponent } from '../../HOC/Stateless';
 import { Item, ItemProps } from './Item';
+import { Options, OptionsProps } from './Options';
 
 const ITEMS_PER_PAGE = 10;
 const FEATURED_URL = `https://api.twitch.tv/kraken/streams/featured?limit=${ITEMS_PER_PAGE}&client_id=`;
@@ -88,7 +89,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
     }
   }
 )((props) => {
-  const { feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh } = props;
+  const { feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh } = props;    
   const items = () => {
     if (feed.status === 'loading') {
       return (
@@ -103,6 +104,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
   };
   return (
     <div ref={setScrollHandler} className='twitch-feed' style={{ width: options.width }} >
+      <Options {...{ appendFeed, feedProps: props } as OptionsProps} />
       <div className='twitch-feed__menu'>
         <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
         <i className='icon fa fa-cog fa-lg' onClick={handleToggleOptions}></i>

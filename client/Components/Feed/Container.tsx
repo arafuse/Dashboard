@@ -27,7 +27,7 @@ const ConnectedContainer = statelessComponent<ContainerProps>()
     // Mapping outside of JSX due to https://github.com/facebook/immutable-js/issues/1430
     const nodes: Array<React.ReactNode> = [];
     twitchFeeds.map((feed, id) => {
-      const options = configs.get(id as string);
+      const options = configs.get(id as string);            
       nodes.push(
         <div key={id}>
           <Options {...{ id, options } as OptionsProps} />

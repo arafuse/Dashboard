@@ -13,7 +13,7 @@ export type DELETE_OPTIONS = typeof DELETE_OPTIONS;
 export const TOGGLE_OPTIONS = 'TOGGLE_OPTIONS';
 export type TOGGLE_OPTIONS = typeof TOGGLE_OPTIONS;
 
-export const MIN_COLUMN_WIDTH = 350;
+export const DEFAULT_COLUMN_WIDTH = 350;
 
 export type Validator = (id: string, key: string, value: any, options: Options) => any;
 
@@ -22,6 +22,7 @@ export interface Options extends Immutable.Map<string, any> {
   type: string;
   width: number;
   query: string;
+  source: string;
   validator: Validator;
 }
 
@@ -30,6 +31,7 @@ export interface OptionsUpdate {
   type?: string;
   width?: number;
   query?: string;
+  source?: string;
   validator?: Validator;
 }
 
@@ -38,8 +40,9 @@ export type State = Immutable.Map<string, any>;
 export const OptionsRecord = Immutable.Record({
   show: false,
   type: '',
-  width: MIN_COLUMN_WIDTH,
+  width: DEFAULT_COLUMN_WIDTH,
   query: '',
+  source: '',
   validator: null
 }, 'Options');
 
@@ -52,18 +55,17 @@ const initialState = Immutable.Map<string, any>();
 
 export const reducer = (state: State = initialState, action: StatefulAction) => {
   switch (action.type) {
-    case ADD_OPTIONS:
-      if (action.id === undefined) throw ('Got \'undefined\' action id');
+    case ADD_OPTIONS:      
       const options = OptionsRecord(action.payload);
-      return updateOptionsState(action.id, state.set(action.id, OptionsRecord(action.payload)), options.toJS());
-    case SET_OPTIONS:
-      if (action.id === undefined) throw ('Got \'undefined\' action id');
-      return updateOptionsState(action.id, state, action.payload);
-    case DELETE_OPTIONS:
-      if (action.id === undefined) throw ('Got \'undefined\' action id');
-      return state.delete(action.id);
-    case TOGGLE_OPTIONS:
-      if (action.id === undefined) throw ('Got \'undefined\' action id');
+      return updateOptionsState(
+        action.id as string, 
+        state.set(action.id as string, OptionsRecord(action.payload)), options.toJS()
+      );
+    case SET_OPTIONS:      
+      return updateOptionsState(action.id as string, state, action.payload);
+    case DELETE_OPTIONS:      
+      return state.delete(action.id as string);
+    case TOGGLE_OPTIONS:      
       return state.setIn([action.id, 'show'], !state.getIn([action.id, 'show']));
     default:
       return state;
@@ -73,7 +75,7 @@ export const reducer = (state: State = initialState, action: StatefulAction) => 
 const updateOptionsState = (id: string, state: State, update: OptionsUpdate): State => {
   const options = state.get(id);
   return state.withMutations((newState) => {
-    Object.entries(update).forEach(([key, value]) => {
+    Object.entries(update).forEach(([key, value]) => {      
       value = options.validator ? options.validator(key, value, options) : value;
       newState.setIn([id, key], value);
     });

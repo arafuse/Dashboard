@@ -49,7 +49,7 @@ const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
     switch (type) {
       case 'twitch':
         dispatch(Twitch.addFeed(id));
-        dispatch(Config.addOptions(id, { type, validator: Twitch.configValidator }));
+        dispatch(Config.addOptions(id, { type, source: Twitch.DEFAULT_SOURCE, validator: Twitch.configValidator }));
         break;
       case 'twitter':
         dispatch(Twitter.newFeed(id));

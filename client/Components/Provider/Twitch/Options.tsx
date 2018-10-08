@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Action, Dispatch } from 'redux';
 
 import * as Config from '../../../Reducers/Config';
-import * as Twitter from '../../../Reducers/Provider/Twitter';
+import * as Twitch from '../../../Reducers/Provider/Twitch';
 import { statelessComponent } from '../../HOC/Stateless';
 import { Modal, ModalProps } from '../../Modal';
 import { FeedProps } from './Feed';
@@ -26,15 +26,15 @@ export const ConnectedOptions = statelessComponent<OptionsProps>({
       event.preventDefault();
       start = Date.now();
       setTimeout(() => {
-        if (Date.now() - start >= AUTO_UPDATE_MILLIS && event.target.name === 'query') {
-          const query = event.target.value;
-          if (options.query !== query) {
-            setOptions(id, { query });
-            setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
+        if (Date.now() - start >= AUTO_UPDATE_MILLIS && event.target.name === 'source') {
+          const source = event.target.value;
+          if (options.source !== source) {
+            setOptions(id, { source });
+            setFeed(id, { ...Twitch.emptyFeed, status: 'loading' });
             appendFeed({
               ...feedProps,
-              options: { ...options, query },
-              feed: { ...Twitter.emptyFeed, status: 'loading' }
+              options: { ...options, source },
+              feed: { ...Twitch.emptyFeed, status: 'loading' }
             });
             toggleOptions(id);
           }
@@ -42,21 +42,32 @@ export const ConnectedOptions = statelessComponent<OptionsProps>({
       }, AUTO_UPDATE_MILLIS);
     };
   }
-})(({ feedProps, handleFormChange }) => (
-  <div>
-    <Modal {...{ show: feedProps.options.show } as ModalProps}>
-      <div className='options__buttons'>
-        <form onChange={handleFormChange()}>
-          <label>Query </label><input type='text' name='query' defaultValue={feedProps.options.query} />
-        </form>
-      </div>
-    </Modal>
-  </div>
-));
+})(({ feedProps, handleFormChange }) => {
+  const { options } = feedProps;
+  const selections = () => {
+    return Object.entries(Twitch.validSources).map(([key, value], index) => (
+      <option key={index} value={key}>{value}</option>
+    ));
+  };
+  return (
+    <div>
+      <Modal {...{ show: options.show } as ModalProps}>
+        <div className='options__buttons'>
+          <form onChange={handleFormChange()}>
+            <label>Source </label>
+            <select name='source' defaultValue={options.source}>
+              {selections()}
+            </select>
+          </form>
+        </div>
+      </Modal>
+    </div>
+  );
+});
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
-  setFeed: (id: string, feed: Twitter.FeedParams) => dispatch(Twitter.setFeed(id, feed)),
-  concatFeed: (id: string, feed: Twitter.FeedParams) => dispatch(Twitter.concatFeed(id, feed)),
+  setFeed: (id: string, feed: Twitch.FeedParams) => dispatch(Twitch.setFeed(id, feed)),
+  concatFeed: (id: string, feed: Twitch.FeedParams) => dispatch(Twitch.concatFeed(id, feed)),
   setOptions: (id: string, options: Config.OptionsUpdate) => dispatch(Config.setOptions(id, options)),
   toggleOptions: (id: string) => dispatch(Config.toggleOptions(id))
 });
