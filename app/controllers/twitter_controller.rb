@@ -9,7 +9,7 @@ class TwitterController < ApplicationController
     # as a hack for demonstration purposes only.
     query = params[:query].unpack('m')
     limit = params[:limit]
-    result = `scrape-twitter search --query=#{query} --count=#{limit}`
+    result = `node_modules/.bin/scrape-twitter search --query=#{query} --count=#{limit}`
     render json: result, status: :ok
   end
 
@@ -17,7 +17,7 @@ class TwitterController < ApplicationController
     # Twitter's free API is severely restricted, so we're using a scraper here
     # as a hack for demonstration purposes only.
     name = params[:name]
-    result = `scrape-twitter profile #{name}`
+    result = `node_modules/.bin/scrape-twitter profile #{name}`
     render json: result, status: :ok
   end
 end
