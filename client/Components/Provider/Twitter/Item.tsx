@@ -24,6 +24,7 @@ export const Item = statelessComponent<ItemProps>({
           </a>
         </div>
         <div className='hn-item__info'>
+          <div className='hn-item__title'>{item.displayName}</div>
           <div className='hn-item__user'>
             <a href={item.userLink} target='_blank'>@{item.user}</a>
           </div>

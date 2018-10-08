@@ -15,6 +15,7 @@ export interface OptionsProps {
   options: Config.Options;
   setFeed(id: string, feed: Twitter.FeedParams): void;
   concatFeed(id: string, feed: Twitter.FeedParams): void;
+  setItem(id: string, item: Twitter.SetItemParams): void;
   toggleOptions(id: string): void;
   setOptions: (id: string, options: Config.OptionsUpdate) => void;  
   handleFormChange: () => () => (event: React.FormEvent<HTMLFormElement>) => void;
@@ -22,7 +23,7 @@ export interface OptionsProps {
 }
 
 export const ConnectedOptions = statelessComponent<OptionsProps>({
-  handleFormChange: () => ({ id, options, toggleOptions, setFeed, concatFeed, appendFeed, setOptions }: OptionsProps) => {
+  handleFormChange: () => ({ id, options, toggleOptions, setFeed, concatFeed, appendFeed, setItem, setOptions }: OptionsProps) => {
     let start = Date.now();
     return (event: HTMLElementEvent<HTMLFormElement | HTMLInputElement>) => {
       event.persist();
@@ -36,7 +37,7 @@ export const ConnectedOptions = statelessComponent<OptionsProps>({
               if (options.query !== newQuery) {
                 setOptions(id, { query: newQuery });
                 setFeed(id, { ...Twitter.emptyFeed, status: 'loading' });
-                const props = { id, options: { ...options, query: newQuery }, concatFeed } as FeedProps;
+                const props = { id, options: { ...options, query: newQuery }, concatFeed, setItem } as FeedProps;
                 appendFeed({ ...props, feed: { ...Twitter.emptyFeed, status: 'loading' } } as FeedProps);
                 toggleOptions(id);
               }

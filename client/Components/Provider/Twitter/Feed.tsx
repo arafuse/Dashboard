@@ -33,6 +33,7 @@ export interface FeedProps {
 
 const appendFeed = (props: FeedProps) => {
   const { feed, options } = props;
+  console.log(props);
   if (!feed.stream.length && options.query) {
     const queryEncoded = Buffer.from(options.query).toString('base64');
     fetch(`/twitter/scrape/${queryEncoded}/${MAX_ITEMS}`).then(response => response.json()).then(stream => {
@@ -43,7 +44,7 @@ const appendFeed = (props: FeedProps) => {
   }
 };
 
-const appendTweets = ({ id, feed, concatFeed }: FeedProps) => {
+const appendTweets = ({ id, feed, concatFeed, setItem }: FeedProps) => {
   const length = feed.items.size;
   const stream = feed.stream;
   const items = Immutable.OrderedMap<string, Twitter.Item>().withMutations((newItems) => {
@@ -52,6 +53,7 @@ const appendTweets = ({ id, feed, concatFeed }: FeedProps) => {
       return newItems.set(uuidv4(), {
         ...Twitter.emptyItem,
         user: tweet.screenName,
+        displayName: tweet.screenName,
         userLink: userLink,
         content: tweet.text,
         image: tweet.images.length ? tweet.images[0] : '',
@@ -60,6 +62,18 @@ const appendTweets = ({ id, feed, concatFeed }: FeedProps) => {
     });
   });
   concatFeed(id, { status: 'loaded', items, stream });
+  items.forEach((item, itemId) => {            
+    item && fetch(`/twitter/user/${item.user}`).then(response => response.json()).then(user => {            
+      console.log(user);
+      setItem(id, {
+        id: itemId as string,
+        item: {
+          displayName: user.name,
+          badge: user.profileImage
+        }
+      });
+    });
+  });
 };
 
 const ConnectedFeed = statelessComponent<FeedProps>(
@@ -93,7 +107,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
     },
   }
 )((props) => {
-  const { id, feed, options, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh } = props;
+  const { id, feed, options, setItem, setScrollHandler, handleDeleteFeed, handleToggleOptions, handleRefresh } = props;
   const items = () => {
     if (feed.status === 'loading') {
       return options.query ? <div>Loading...</div> : <div>Enter search query.</div>;
@@ -109,7 +123,7 @@ const ConnectedFeed = statelessComponent<FeedProps>(
   };
   return (
     <div ref={setScrollHandler} className='twitter-feed' style={{ width: options.width }} >
-      <Options {...{ id, options, appendFeed } as OptionsProps} />
+      <Options {...{ id, options, setItem, appendFeed } as OptionsProps} />
       <div className='twitter-feed__menu'>
         <i className='icon fa fa-trash fa-lg' onClick={handleDeleteFeed}></i>
         <i className='icon fa fa-cog fa-lg' onClick={handleToggleOptions}></i>
@@ -121,11 +135,11 @@ const ConnectedFeed = statelessComponent<FeedProps>(
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<Action>) => ({
+  setItem: (id: string, item: Twitter.SetItemParams) => dispatch(Twitter.setItem(id, item)),
   toggleOptions: (id: string) => dispatch(Config.toggleOptions(id)),
   setFeed: (id: string, feed: Twitter.FeedParams) => dispatch(Twitter.setFeed(id, feed)),
   concatFeed: (id: string, feed: Twitter.FeedParams) => dispatch(Twitter.concatFeed(id, feed)),
-  deleteFeed: (id: string) => { dispatch(Twitter.deleteFeed(id)); dispatch(Config.deleteOptions(id)); },
-  setItem: (id: string, item: Twitter.SetItemParams) => dispatch(Twitter.setItem(id, item))
+  deleteFeed: (id: string) => { dispatch(Twitter.deleteFeed(id)); dispatch(Config.deleteOptions(id)); },  
 });
 
 export const Feed = connect(undefined, mapDispatchToProps)(ConnectedFeed);
