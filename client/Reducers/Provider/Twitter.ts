@@ -59,14 +59,14 @@ export interface Feed {
   status: string;
   error: string;
   items: Immutable.OrderedMap<string, Item>;
-  stream: Array<any>;
+  stream: NodeJS.ReadableStream | null;
 }
 
 export interface FeedParams {
   status?: string;
   error?: string;
   items?: Immutable.OrderedMap<string, Item>;
-  stream?: Array<any>;
+  stream?: NodeJS.ReadableStream | null;
 }
 
 export type State = Immutable.Map<string, any>;
@@ -75,7 +75,7 @@ export const emptyFeed = {
   status: 'new',
   error: '',
   items: Immutable.OrderedMap<string, Item>(),
-  stream: [],
+  stream: null,
 };
 
 export const newFeed = (id: string) => ({ type: NEW_FEED, id: id });

@@ -5,6 +5,4 @@ Rails.application.routes.draw do
   root to: 'pages#root'
   get 'fetch/:uri', to: 'fetch#get'
   get 'twitch/sign/:uri', to: 'twitch#sign'
-  get 'twitter/scrape/:query/:limit', to: 'twitter#scrape'
-  get 'twitter/user/:name', to: 'twitter#user'
 end

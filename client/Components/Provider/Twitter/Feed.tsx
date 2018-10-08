@@ -3,8 +3,10 @@ import './Feed.css';
 import * as Immutable from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Action, Dispatch } from 'redux';
+import { Action, Dispatch, AnyAction } from 'redux';
 import { v4 as uuidv4 } from 'uuid';
+import * as TweetStream from '../../../Vendor/scrape-twitter/tweet-stream';
+import * as twitterQuery from '../../../Vendor/scrape-twitter/twitter-query';
 
 import * as Config from '../../../Reducers/Config';
 import * as Twitter from '../../../Reducers/Provider/Twitter';
@@ -31,26 +33,16 @@ export interface FeedProps {
   handleRefresh(props: FeedProps): () => void;
 }
 
-const appendFeed = (props: FeedProps) => {
-  const { feed, options } = props;
-  console.log(props);
-  if (!feed.stream.length && options.query) {
-    const queryEncoded = Buffer.from(options.query).toString('base64');
-    fetch(`/twitter/scrape/${queryEncoded}/${MAX_ITEMS}`).then(response => response.json()).then(stream => {
-      appendTweets({ ...props, feed: { ...props.feed, stream } });
-    });
-  } else {
-    appendTweets(props);
-  }
-};
-
-const appendTweets = ({ id, feed, concatFeed, setItem }: FeedProps) => {
-  const length = feed.items.size;
-  const stream = feed.stream;
-  const items = Immutable.OrderedMap<string, Twitter.Item>().withMutations((newItems) => {
-    stream.slice(length, length + ITEMS_PER_PAGE).forEach((tweet: any) => {
-      const userLink = 'https://twitter.com/' + tweet.screenName;
-      return newItems.set(uuidv4(), {
+const newTweetStream = ({ id, options, setItem, concatFeed }: FeedProps): NodeJS.ReadableStream => {
+  // @ts-ignore
+  const stream: NodeJS.ReadableStream = new TweetStream(options.query, 'latest', { count: MAX_ITEMS });
+  stream.pause();
+  let numRead = 0;
+  stream.on('data', (tweet) => {
+    const itemId = uuidv4();
+    const userLink = 'https://twitter.com/' + tweet.screenName;
+    const items = Immutable.OrderedMap<string, Twitter.Item>({
+      [itemId]: {
         ...Twitter.emptyItem,
         user: tweet.screenName,
         displayName: tweet.screenName,
@@ -58,13 +50,14 @@ const appendTweets = ({ id, feed, concatFeed, setItem }: FeedProps) => {
         content: tweet.text,
         image: tweet.images.length ? tweet.images[0] : '',
         link: tweet.urls.length ? tweet.urls[0].url : userLink
-      });
+      }
     });
-  });
-  concatFeed(id, { status: 'loaded', items, stream });
-  items.forEach((item, itemId) => {
-    item && fetch(`/twitter/user/${item.user}`).then(response => response.json()).then(user => {
-      console.log(user);
+    concatFeed(id, { status: 'loaded', items });
+    if (++numRead >= ITEMS_PER_PAGE) {
+      numRead = 0;
+      stream.pause();
+    }
+    twitterQuery.getUserProfile(tweet.screenName).then((user: AnyAction) => {
       setItem(id, {
         id: itemId as string,
         item: {
@@ -74,6 +67,17 @@ const appendTweets = ({ id, feed, concatFeed, setItem }: FeedProps) => {
       });
     });
   });
+  return stream;
+};
+
+const appendFeed = (props: FeedProps) => {
+  let { stream } = props.feed;
+  const { id, setFeed, options } = props;
+  if (!stream && options.query) {
+    stream = newTweetStream(props);
+    setFeed(id, { stream });
+  }
+  stream && stream.resume();
 };
 
 const ConnectedFeed = statelessComponent<FeedProps>(
